@@ -27,8 +27,9 @@
   #atsOut { margin-top: 8px; }
   #atsOut p { margin: 4px 0; }
 
-  #resume { border: 1px solid #bbb; padding: 28px; margin-top: 24px; background: #fff; }
-  #rName { margin: 0 0 4px; font-size: 28px; letter-spacing: 1px; color: var(--accent); }
+  .previewLabel { font-weight: bold; margin-top: 24px; color: #555; }
+  #resume { border: 1px solid #bbb; padding: 28px; margin-top: 6px; background: #fff; }
+  #rName { margin: 0 0 4px; font-size: 32px; font-weight: 800; letter-spacing: 1px; color: #111; }
   #rContact { margin: 0 0 16px; color: #555; }
   #resume h3 { margin: 18px 0 6px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--accent); color: var(--accent); padding-bottom: 3px; }
   .block { white-space: pre-line; margin: 0; line-height: 1.5; }
@@ -50,7 +51,7 @@
   </div>
 
   <label>Full name</label>
-  <input id="name">
+  <input id="name" placeholder="Type your name">
   <label>Email</label>
   <input id="email">
   <label>Phone</label>
@@ -78,7 +79,7 @@
     <input id="tTask" placeholder="Start with a verb: Served customers at a cafe">
     <label>Any number? (optional)</label>
     <input id="tNum" placeholder="e.g. 50 customers a day, team of 5, 20 hours a week">
-    <button onclick="translate()">Translate</button>
+    <button type="button" onclick="runTranslate()">Translate</button>
     <div id="tOut"></div>
   </div>
 
@@ -88,10 +89,12 @@
   <label>Resume color</label>
   <div id="swatches"></div>
 
-  <button onclick="checkATS()">Check my resume (free)</button>
+  <button type="button" onclick="checkATS()">Check my resume (free)</button>
   <div id="atsOut"></div>
 
-  <button onclick="window.print()">Download PDF</button>
+  <button type="button" onclick="window.print()">Download PDF</button>
+
+  <div class="previewLabel">Live preview (updates as you type)</div>
 </div>
 
 <div id="resume">
@@ -118,8 +121,11 @@ function update() {
   show("secExperience", "rExperience", val("experience"));
   show("secSkills", "rSkills", val("skills"));
 }
-document.querySelectorAll("input, textarea").forEach(function (el) {
-  el.oninput = update;
+["name", "email", "phone", "summary", "education", "experience", "skills"].forEach(function (id) {
+  var el = document.getElementById(id);
+  el.addEventListener("input", update);
+  el.addEventListener("keyup", update);
+  el.addEventListener("change", update);
 });
 
 var EXTRA = {
@@ -149,7 +155,7 @@ var EXTRA = {
   ]
 };
 
-function translate() {
+function runTranslate() {
   var task = val("tTask");
   var num = val("tNum");
   var out = document.getElementById("tOut");
@@ -165,5 +171,58 @@ function translate() {
     var p = document.createElement("p");
     p.textContent = line;
     var b = document.createElement("button");
+    b.type = "button";
     b.textContent = "Add to resume";
-    b.oncli
+    b.onclick = function () {
+      var ex = document.getElementById("experience");
+      ex.value = (ex.value ? ex.value + "\n" : "") + "- " + line;
+      update();
+      b.textContent = "Added";
+    };
+    box.appendChild(p);
+    box.appendChild(b);
+    out.appendChild(box);
+  });
+}
+
+function checkATS() {
+  var tips = [], score = 100;
+  function miss(p, m) { score -= p; tips.push(m); }
+  if (!val("name")) miss(10, "Add your full name.");
+  if (!val("email")) miss(10, "Add your email.");
+  if (!val("phone")) miss(5, "Add your phone number.");
+  if (val("summary").length < 60) miss(10, "Write a 2-3 sentence summary.");
+  if (!val("education")) miss(15, "Add your education.");
+  var exp = val("experience");
+  var lines = exp ? exp.split("\n").filter(Boolean) : [];
+  if (lines.length < 3) miss(15, "Add at least 3 experience lines. Try the Experience Translator.");
+  if (!/\d/.test(exp)) miss(10, "Add numbers (people, hours, results) to show impact.");
+  var skills = val("skills").split("\n").filter(Boolean);
+  if (skills.length < 5) miss(10, "List at least 5 skills.");
+  if (score < 0) score = 0;
+  var out = document.getElementById("atsOut");
+  out.innerHTML = "";
+  var h = document.createElement("h3");
+  h.textContent = "ATS score: " + score + "/100";
+  out.appendChild(h);
+  if (!tips.length) tips.push("Great job. Your resume is ready to download.");
+  tips.forEach(function (t) {
+    var p = document.createElement("p");
+    p.textContent = "• " + t;
+    out.appendChild(p);
+  });
+}
+
+["#2563eb", "#059669", "#7c3aed", "#e11d48", "#ea580c", "#222222"].forEach(function (c) {
+  var b = document.createElement("button");
+  b.type = "button";
+  b.className = "sw";
+  b.style.background = c;
+  b.onclick = function () { document.documentElement.style.setProperty("--accent", c); };
+  document.getElementById("swatches").appendChild(b);
+});
+
+update();
+</script>
+</body>
+</html>
