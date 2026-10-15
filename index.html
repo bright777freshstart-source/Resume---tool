@@ -1,21 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Graduate Resume Builder</title>
+<title>FreshStart Resume - Free Resume Builder for Graduates</title>
+<meta name="description" content="Build a professional, ATS-friendly resume in minutes. 12 templates, Experience Translator and ATS score. Made for graduates.">
 <style>
-  :root { --accent: #2563eb; }
+  :root { --accent: #1B2B47; }
   * { box-sizing: border-box; }
   body { font-family: Arial, sans-serif; max-width: 1100px; margin: 16px auto; padding: 0 12px 90px; color: #222; background: #f7f8fc; }
   label { display: block; font-weight: bold; margin-top: 10px; }
   input, textarea, select { width: 100%; padding: 10px; margin: 4px 0 8px; font-size: 16px; font-family: inherit; }
   textarea { line-height: 1.4; }
-  button { padding: 12px 18px; font-size: 16px; margin-top: 12px; background: var(--accent); color: #fff; border: 0; border-radius: 8px; cursor: pointer; }
+  button { padding: 12px 18px; font-size: 16px; margin-top: 12px; background: #2563eb; color: #fff; border: 0; border-radius: 8px; cursor: pointer; }
+  button.pay { background: #16a34a; }
+  button.grey { background: #64748b; }
 
   .hero { background: linear-gradient(135deg, #2563eb, #7c3aed); color: #fff; border-radius: 12px; padding: 22px 16px; margin-bottom: 16px; text-align: center; }
   .hero h1 { margin: 0 0 6px; font-size: 26px; }
   .hero p { margin: 0 0 10px; }
-  .badges span { display: inline-block; background: rgba(255,255,255,.22); border-radius: 20px; padding: 4px 10px; margin: 3px; font-size: 13px; }
+  .badges span { display: inline-block; background: rgba(255,255,255,.22); border-radius: 20px; padding: 4px 12px; margin: 3px; font-size: 13px; }
 
   .app { display: flex; gap: 22px; align-items: flex-start; }
   #editor { flex: 1; min-width: 0; }
@@ -23,38 +27,49 @@
   .previewTop { display: none; }
   #openPreview { display: none; }
 
-  .translator { background: #f2f7ff; border: 1px solid #b9d0f5; border-radius: 8px; padding: 14px; margin: 16px 0; }
-  .translator h2 { margin: 0 0 4px; font-size: 18px; }
+  .box { background: #f2f7ff; border: 1px solid #b9d0f5; border-radius: 8px; padding: 14px; margin: 16px 0; }
+  .box h2 { margin: 0 0 4px; font-size: 18px; }
   .hint { color: #555; font-size: 14px; margin: 0 0 6px; }
   .sug { background: #fff; border: 1px solid #ccc; border-radius: 6px; padding: 10px; margin-top: 8px; }
   .sug p { margin: 0 0 6px; line-height: 1.4; }
   .sug button { margin: 0; padding: 8px 14px; font-size: 14px; }
-
   .sw { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #bbb; margin: 4px; padding: 0; }
   #atsOut { margin-top: 8px; }
   #atsOut p { margin: 4px 0; }
+  .paybox { background: #ecfdf3; border: 1px solid #86efac; border-radius: 8px; padding: 14px; margin: 16px 0; }
+  .paybox h2 { margin: 0 0 4px; font-size: 18px; }
 
-  /* The CV paper */
-  #resume { background: #fff; box-shadow: 0 2px 14px rgba(0,0,0,.2); padding: 34px 32px 40px; min-height: 520px; border-top: 8px solid var(--accent); }
-  .cvHead { border-bottom: 2px solid var(--accent); padding-bottom: 12px; margin-bottom: 6px; }
-  #rName { margin: 0 0 6px; font-size: 32px; font-weight: 800; letter-spacing: 1px; color: #111; text-transform: uppercase; word-wrap: break-word; }
+  /* CV paper */
+  #resume { background: #fff; box-shadow: 0 2px 14px rgba(0,0,0,.2); padding: 34px 32px 40px; min-height: 520px; border-top: 8px solid var(--accent); font-family: Georgia, serif; }
+  .cvHead { padding-bottom: 12px; margin-bottom: 6px; }
+  #rName { margin: 0 0 6px; font-size: 30px; font-weight: 800; color: #111; text-transform: uppercase; word-wrap: break-word; }
   #rContact { margin: 0; color: #444; font-size: 14px; }
   .sec { margin-top: 18px; }
-  .sec h3 { margin: 0 0 6px; font-size: 14px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent); border-bottom: 1px solid #ddd; padding-bottom: 3px; }
+  .sec h3 { margin: 0 0 6px; font-size: 14px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent); }
   .txt { margin: 0; line-height: 1.55; font-size: 14.5px; white-space: pre-line; }
   .sec ul { margin: 0; padding-left: 20px; }
   .sec li { line-height: 1.55; font-size: 14.5px; margin-bottom: 4px; }
   .empty { color: #b5b5b5; font-style: italic; }
+  .wm { text-align: center; color: #999; font-size: 11px; margin: 28px 0 0; }
+
+  #resume[data-layout="banner"] .cvHead { text-align: center; }
+  #resume[data-layout="banner"] #rName { letter-spacing: .25em; font-size: 26px; }
+  #resume[data-layout="banner"] .sec h3 { background: #E8E8E8; text-align: center; padding: 6px; color: #222; }
+  #resume[data-layout="left"] .cvHead { text-align: left; border-bottom: 2px solid var(--accent); }
+  #resume[data-layout="left"] .sec h3 { border-bottom: 1px solid var(--accent); padding-bottom: 3px; }
+  #resume[data-layout="split"] .cvHead { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 6px; border-bottom: 1px solid var(--accent); }
+  #resume[data-layout="split"] #rContact { text-align: right; }
+  #resume[data-layout="split"] .sec h3 { font-style: italic; font-variant: small-caps; text-transform: none; font-size: 16px; border-bottom: 1px solid #ddd; }
 
   @media (max-width: 899px) {
     .app { display: block; }
     #previewPane { display: none; position: fixed; inset: 0; z-index: 50; background: #e4e7f0; overflow: auto; max-height: none; padding: 10px; }
     #previewPane.open { display: block; }
-    .previewTop { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
-    .previewTop button { margin: 0; padding: 10px 14px; font-size: 14px; }
+    .previewTop { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    .previewTop button { margin: 0; padding: 10px 12px; font-size: 14px; }
     #openPreview { display: block; position: fixed; right: 14px; bottom: 16px; z-index: 40; margin: 0; border-radius: 30px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(0,0,0,.3); }
     #resume { padding: 24px 18px 30px; }
-    #rName { font-size: 26px; }
+    #rName { font-size: 22px; }
   }
 
   @media print {
@@ -74,9 +89,12 @@
   <div id="editor">
     <div class="hero">
       <h1>Land your first job faster</h1>
-      <p>Build a clean, ATS-friendly resume in minutes. No experience needed.</p>
-      <div class="badges"><span>✔ Free to build</span><span>✔ Experience Translator</span><span>✔ ATS score</span></div>
+      <p>FreshStart Resume: build a clean, ATS-friendly resume in minutes. No experience needed.</p>
+      <div class="badges"><span>12 templates</span><span>Experience Translator</span><span>ATS score</span><span>PDF and Word</span></div>
     </div>
+
+    <label>Choose a template</label>
+    <select id="tplSelect"></select>
 
     <label>Full name</label>
     <input id="name" placeholder="Type your name">
@@ -91,7 +109,7 @@
     <label>Projects and experience (one item per line)</label>
     <textarea id="experience" rows="7"></textarea>
 
-    <div class="translator">
+    <div class="box">
       <h2>Experience Translator</h2>
       <p class="hint">No job experience? Turn school work, part-time jobs and volunteering into resume lines.</p>
       <label>What kind of experience?</label>
@@ -120,15 +138,26 @@
     <button type="button" onclick="checkATS()">Check my resume (free)</button>
     <div id="atsOut"></div>
 
-    <button type="button" onclick="window.print()">Download PDF</button>
+    <div class="paybox">
+      <h2 id="payTitle">Download your resume</h2>
+      <p class="hint" id="payHint">Download your resume as a PDF or Word file.</p>
+      <button type="button" onclick="downloadPDF()">Download PDF</button>
+      <button type="button" class="grey" onclick="downloadWord()">Download Word</button>
+      <button type="button" class="pay" id="unlockBtn" onclick="pay()">Unlock clean PDF and Word</button>
+      <p class="hint" id="codeRow">Already paid? Enter your unlock code:<br>
+        <input id="codeIn" placeholder="Enter unlock code" style="max-width:220px">
+        <button type="button" class="grey" onclick="enterCode()" style="margin:0;padding:8px 12px;font-size:14px">Unlock</button>
+      </p>
+    </div>
   </div>
 
   <div id="previewPane">
     <div class="previewTop">
-      <button type="button" onclick="closePreview()">← Back to editing</button>
-      <button type="button" onclick="window.print()">Download PDF</button>
+      <button type="button" onclick="closePreview()">Back to editing</button>
+      <button type="button" onclick="downloadPDF()">PDF</button>
+      <button type="button" class="grey" onclick="downloadWord()">Word</button>
     </div>
-    <div id="resume">
+    <div id="resume" data-layout="banner">
       <div class="cvHead">
         <h2 id="rName">Your Name</h2>
         <p id="rContact"></p>
@@ -137,26 +166,147 @@
       <div class="sec" id="secEducation"><h3>Education</h3><p class="txt" id="rEducation"></p></div>
       <div class="sec" id="secExperience"><h3>Projects and Experience</h3><ul id="rExperience"></ul></div>
       <div class="sec" id="secSkills"><h3>Skills</h3><p class="txt" id="rSkills"></p></div>
+      <p class="wm" id="wm">Created free with FreshStart Resume</p>
     </div>
   </div>
 
 </div>
 
-<button type="button" id="openPreview" onclick="openPreview()">👁 Preview CV</button>
+<button type="button" id="openPreview" onclick="openPreview()">Preview CV</button>
 
 <script>
+/* ====== YOUR SETTINGS ======
+   PAYWALL_ON = false  -> everything is free (current mode)
+   PAYWALL_ON = true   -> clean downloads need payment (set the 2 lines below first)
+*/
+var PAYWALL_ON = false;
+var PAY_LINK = "PASTE_YOUR_PAYMENT_LINK_HERE";
+var UNLOCK_SECRET = "CHANGE-THIS-SECRET";
+var PRICE = "$3.99";
+/* ============================ */
+
+var TEMPLATES = [
+  { cat: "Corporate / Executive", name: "The Boardroom", font: "Garamond, Georgia, serif", word: "Garamond", accent: "#1B2B47", layout: "banner" },
+  { cat: "Corporate / Executive", name: "The Partner", font: "Garamond, Georgia, serif", word: "Garamond", accent: "#1B2B47", layout: "left" },
+  { cat: "Tech / Engineering", name: "The Builder", font: "Helvetica, Arial, sans-serif", word: "Arial", accent: "#3B5168", layout: "left" },
+  { cat: "Tech / Engineering", name: "The Architect", font: "Helvetica, Arial, sans-serif", word: "Arial", accent: "#3B5168", layout: "banner" },
+  { cat: "Creative", name: "The Editorial (clay)", font: "Cambria, Georgia, serif", word: "Cambria", accent: "#A85432", layout: "split" },
+  { cat: "Creative", name: "The Studio (sage)", font: "Cambria, Georgia, serif", word: "Cambria", accent: "#6B7F5C", layout: "banner" },
+  { cat: "Healthcare / Education", name: "The Practitioner", font: "Georgia, serif", word: "Georgia", accent: "#2A6B6E", layout: "banner" },
+  { cat: "Healthcare / Education", name: "The Educator", font: "Georgia, serif", word: "Georgia", accent: "#2A6B6E", layout: "left" },
+  { cat: "Academic / Research", name: "The Scholar", font: "Garamond, Georgia, serif", word: "Garamond", accent: "#6B2737", layout: "banner" },
+  { cat: "Academic / Research", name: "The Researcher", font: "Garamond, Georgia, serif", word: "Garamond", accent: "#6B2737", layout: "left" },
+  { cat: "Trades / Service", name: "The Operator", font: "Calibri, Arial, sans-serif", word: "Calibri", accent: "#C2511F", layout: "left" },
+  { cat: "Trades / Service", name: "The Foreman", font: "Calibri, Arial, sans-serif", word: "Calibri", accent: "#2D2D2D", layout: "banner" }
+];
+var current = TEMPLATES[0];
+
 function val(id) { return document.getElementById(id).value.trim(); }
 function lines(id) {
-  return val(id).split("\n").map(function (l) { return l.replace(/^[-•*]\s*/, "").trim(); }).filter(Boolean);
+  return val(id).split("\n").map(function (l) { return l.replace(/^[-*]\s*/, "").trim(); }).filter(Boolean);
+}
+function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+/* ---- Paywall ---- */
+function isPaid() {
+  if (!PAYWALL_ON) { return true; }
+  try { return localStorage.getItem("paid") === "1"; } catch (e) { return false; }
+}
+function checkUnlockLink() {
+  try {
+    var q = new URLSearchParams(window.location.search).get("unlock");
+    if (q && q === UNLOCK_SECRET) {
+      localStorage.setItem("paid", "1");
+      history.replaceState(null, "", window.location.pathname);
+    }
+  } catch (e) {}
+}
+function enterCode() {
+  if (document.getElementById("codeIn").value.trim() === UNLOCK_SECRET) {
+    try { localStorage.setItem("paid", "1"); } catch (e) {}
+    applyPaid();
+  } else { alert("That code is not correct."); }
+}
+function applyPaid() {
+  var paid = isPaid();
+  document.getElementById("wm").style.display = paid ? "none" : "block";
+  document.getElementById("unlockBtn").style.display = (paid || !PAYWALL_ON) ? "none" : "inline-block";
+  document.getElementById("codeRow").style.display = (paid || !PAYWALL_ON) ? "none" : "block";
+  if (!PAYWALL_ON) {
+    document.getElementById("payTitle").textContent = "Download your resume";
+    document.getElementById("payHint").textContent = "Free to download as a PDF or Word file.";
+  } else if (paid) {
+    document.getElementById("payTitle").textContent = "Unlocked. Download your clean resume";
+    document.getElementById("payHint").textContent = "Thank you! Your clean PDF and Word downloads are unlocked on this device.";
+  } else {
+    document.getElementById("payTitle").textContent = "Download your resume";
+    document.getElementById("payHint").textContent = "Free PDF includes a small watermark. Unlock the clean PDF and Word file for " + PRICE + ".";
+  }
+}
+function pay() {
+  if (PAY_LINK.indexOf("PASTE") === 0) { alert("Payments are coming soon."); return; }
+  window.location.href = PAY_LINK;
+}
+function downloadPDF() { window.print(); }
+
+function downloadWord() {
+  if (!isPaid()) { pay(); return; }
+  var t = current;
+  var center = t.layout === "banner" ? "center" : "left";
+  var head = 'style="color:' + t.accent + ';font-size:12pt;text-transform:uppercase;border-bottom:1px solid ' + t.accent + ';margin:14pt 0 4pt"';
+  function sec(title, inner) { return inner ? "<h2 " + head + ">" + title + "</h2>" + inner : ""; }
+  var contact = [val("email"), val("phone")].filter(Boolean).join("  |  ");
+  var html = '<html><head><meta charset="utf-8"><title>Resume</title></head>' +
+    '<body style="font-family:' + t.word + ';font-size:11pt">' +
+    '<h1 style="text-align:' + center + ';font-size:22pt;margin:0">' + esc(val("name") || "Your Name").toUpperCase() + "</h1>" +
+    '<p style="text-align:' + center + ';margin:2pt 0 8pt">' + esc(contact) + "</p>" +
+    sec("Professional Summary", val("summary") ? "<p>" + esc(val("summary")) + "</p>" : "") +
+    sec("Education", lines("education").map(function (l) { return "<p style='margin:0'>" + esc(l) + "</p>"; }).join("")) +
+    sec("Projects and Experience", lines("experience").length ? "<ul>" + lines("experience").map(function (l) { return "<li>" + esc(l) + "</li>"; }).join("") + "</ul>" : "") +
+    sec("Skills", lines("skills").length ? "<p>" + esc(lines("skills").join(", ")) + "</p>" : "") +
+    "</body></html>";
+  var blob = new Blob(["\ufeff" + html], { type: "application/msword" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "resume.doc";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
+/* ---- Templates ---- */
+function buildTemplateMenu() {
+  var sel = document.getElementById("tplSelect");
+  var group = null, last = "";
+  TEMPLATES.forEach(function (t, i) {
+    if (t.cat !== last) {
+      group = document.createElement("optgroup");
+      group.label = t.cat;
+      sel.appendChild(group);
+      last = t.cat;
+    }
+    var o = document.createElement("option");
+    o.value = i;
+    o.textContent = t.name;
+    group.appendChild(o);
+  });
+  sel.onchange = function () { applyTemplate(TEMPLATES[sel.value]); };
+}
+function applyTemplate(t) {
+  current = t;
+  var r = document.getElementById("resume");
+  r.setAttribute("data-layout", t.layout);
+  r.style.fontFamily = t.font;
+  document.documentElement.style.setProperty("--accent", t.accent);
+}
+
+/* ---- Live preview ---- */
 function setText(secId, textId, value, sample) {
   var sec = document.getElementById(secId);
   var box = document.getElementById(textId);
   if (value) { box.textContent = value; sec.classList.remove("empty"); }
   else { box.textContent = sample; sec.classList.add("empty"); }
 }
-
 function update() {
   var nameEl = document.getElementById("rName");
   var name = val("name");
@@ -170,7 +320,7 @@ function update() {
 
   setText("secSummary", "rSummary", val("summary"), "Your short summary will appear here.");
   setText("secEducation", "rEducation", lines("education").join("\n"), "Your school, course and year will appear here.");
-  setText("secSkills", "rSkills", lines("skills").join("  •  "), "Your skills will appear here.");
+  setText("secSkills", "rSkills", lines("skills").join(", "), "Your skills will appear here.");
 
   var ul = document.getElementById("rExperience");
   var sec = document.getElementById("secExperience");
@@ -190,44 +340,24 @@ function update() {
     ul.appendChild(li);
   }
 }
-
 ["name", "email", "phone", "summary", "education", "experience", "skills"].forEach(function (id) {
   var el = document.getElementById(id);
   el.addEventListener("input", update);
   el.addEventListener("keyup", update);
   el.addEventListener("change", update);
 });
-
 function openPreview() { document.getElementById("previewPane").classList.add("open"); window.scrollTo(0, 0); }
 function closePreview() { document.getElementById("previewPane").classList.remove("open"); }
 
+/* ---- Experience Translator ---- */
 var EXTRA = {
-  service: [
-    "Handled orders and payments accurately in a fast-paced environment",
-    "Resolved customer concerns calmly, building communication and problem-solving skills"
-  ],
-  group: [
-    "Collaborated with teammates to plan work, share tasks and meet deadlines",
-    "Presented final results to lecturers and peers, strengthening communication skills"
-  ],
-  tutor: [
-    "Explained difficult concepts in simple terms and adapted to each learner's pace",
-    "Tracked progress and gave feedback that helped learners improve"
-  ],
-  volunteer: [
-    "Supported community goals by reliably completing assigned responsibilities",
-    "Worked with diverse people and showed initiative without being asked"
-  ],
-  research: [
-    "Gathered, analysed and organised information to support clear conclusions",
-    "Wrote and presented findings in a structured, evidence-based report"
-  ],
-  leader: [
-    "Organised events and coordinated members to achieve shared goals",
-    "Motivated peers, delegated tasks and kept activities on schedule"
-  ]
+  service: ["Handled orders and payments accurately in a fast-paced environment", "Resolved customer concerns calmly, building communication and problem-solving skills"],
+  group: ["Collaborated with teammates to plan work, share tasks and meet deadlines", "Presented final results to lecturers and peers, strengthening communication skills"],
+  tutor: ["Explained difficult concepts in simple terms and adapted to each learner's pace", "Tracked progress and gave feedback that helped learners improve"],
+  volunteer: ["Supported community goals by reliably completing assigned responsibilities", "Worked with diverse people and showed initiative without being asked"],
+  research: ["Gathered, analysed and organised information to support clear conclusions", "Wrote and presented findings in a structured, evidence-based report"],
+  leader: ["Organised events and coordinated members to achieve shared goals", "Motivated peers, delegated tasks and kept activities on schedule"]
 };
-
 function runTranslate() {
   var task = val("tTask");
   var num = val("tNum");
@@ -251,51 +381,4 @@ function runTranslate() {
       ex.value = (ex.value ? ex.value + "\n" : "") + line;
       update();
       b.textContent = "Added";
-    };
-    box.appendChild(p);
-    box.appendChild(b);
-    out.appendChild(box);
-  });
-}
-
-function checkATS() {
-  var tips = [], score = 100;
-  function miss(p, m) { score -= p; tips.push(m); }
-  if (!val("name")) miss(10, "Add your full name.");
-  if (!val("email")) miss(10, "Add your email.");
-  if (!val("phone")) miss(5, "Add your phone number.");
-  if (val("summary").length < 60) miss(10, "Write a 2-3 sentence summary.");
-  if (!val("education")) miss(15, "Add your education.");
-  var exp = val("experience");
-  var exLines = exp ? exp.split("\n").filter(Boolean) : [];
-  if (exLines.length < 3) miss(15, "Add at least 3 experience lines. Try the Experience Translator.");
-  if (!/\d/.test(exp)) miss(10, "Add numbers (people, hours, results) to show impact.");
-  var sk = val("skills").split("\n").filter(Boolean);
-  if (sk.length < 5) miss(10, "List at least 5 skills.");
-  if (score < 0) score = 0;
-  var out = document.getElementById("atsOut");
-  out.innerHTML = "";
-  var h = document.createElement("h3");
-  h.textContent = "ATS score: " + score + "/100";
-  out.appendChild(h);
-  if (!tips.length) tips.push("Great job. Your resume is ready to download.");
-  tips.forEach(function (t) {
-    var p = document.createElement("p");
-    p.textContent = "• " + t;
-    out.appendChild(p);
-  });
-}
-
-["#2563eb", "#059669", "#7c3aed", "#e11d48", "#ea580c", "#222222"].forEach(function (c) {
-  var b = document.createElement("button");
-  b.type = "button";
-  b.className = "sw";
-  b.style.background = c;
-  b.onclick = function () { document.documentElement.style.setProperty("--accent", c); };
-  document.getElementById("swatches").appendChild(b);
-});
-
-update();
-</script>
-</body>
-</html>
+  
