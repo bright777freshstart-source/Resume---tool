@@ -6,9 +6,16 @@
 <style>
   body { font-family: Arial, sans-serif; max-width: 640px; margin: 20px auto; padding: 0 12px; color: #222; }
   label { display: block; font-weight: bold; margin-top: 10px; }
-  input, textarea { width: 100%; padding: 10px; margin: 4px 0 8px; box-sizing: border-box; font-size: 16px; font-family: inherit; }
+  input, textarea, select { width: 100%; padding: 10px; margin: 4px 0 8px; box-sizing: border-box; font-size: 16px; font-family: inherit; }
   textarea { line-height: 1.4; }
   button { padding: 12px 18px; font-size: 16px; margin-top: 12px; }
+
+  .translator { background: #f2f7ff; border: 1px solid #b9d0f5; border-radius: 8px; padding: 14px; margin: 16px 0; }
+  .translator h2 { margin: 0 0 4px; font-size: 18px; }
+  .hint { color: #555; font-size: 14px; margin: 0 0 6px; }
+  .sug { background: #fff; border: 1px solid #ccc; border-radius: 6px; padding: 10px; margin-top: 8px; }
+  .sug p { margin: 0 0 6px; line-height: 1.4; }
+  .sug button { margin: 0; padding: 8px 14px; font-size: 14px; }
 
   #resume { border: 1px solid #bbb; padding: 28px; margin-top: 24px; background: #fff; }
   #rName { margin: 0 0 4px; font-size: 28px; letter-spacing: 1px; }
@@ -38,6 +45,27 @@
   <textarea id="education" rows="5"></textarea>
   <label>Projects and experience (one item per line)</label>
   <textarea id="experience" rows="7"></textarea>
+
+  <div class="translator">
+    <h2>Experience Translator</h2>
+    <p class="hint">No job experience? Turn school work, part-time jobs and volunteering into resume lines.</p>
+    <label>What kind of experience?</label>
+    <select id="tType">
+      <option value="service">Part-time job (cafe, shop, restaurant)</option>
+      <option value="group">Group / class project</option>
+      <option value="tutor">Tutoring or teaching</option>
+      <option value="volunteer">Volunteering</option>
+      <option value="research">Research / thesis</option>
+      <option value="leader">Club or leadership role</option>
+    </select>
+    <label>What did you do?</label>
+    <input id="tTask" placeholder="Start with a verb: Served customers at a cafe">
+    <label>Any number? (optional)</label>
+    <input id="tNum" placeholder="e.g. 50 customers a day, team of 5, 20 hours a week">
+    <button onclick="translate()">Translate</button>
+    <div id="tOut"></div>
+  </div>
+
   <label>Skills (one item per line)</label>
   <textarea id="skills" rows="4"></textarea>
   <button onclick="window.print()">Download PDF</button>
@@ -70,6 +98,62 @@ function update() {
 document.querySelectorAll("input, textarea").forEach(function (el) {
   el.oninput = update;
 });
+
+var EXTRA = {
+  service: [
+    "Handled orders and payments accurately in a fast-paced environment",
+    "Resolved customer concerns calmly, building communication and problem-solving skills"
+  ],
+  group: [
+    "Collaborated with teammates to plan work, share tasks and meet deadlines",
+    "Presented final results to lecturers and peers, strengthening communication skills"
+  ],
+  tutor: [
+    "Explained difficult concepts in simple terms and adapted to each learner's pace",
+    "Tracked progress and gave feedback that helped learners improve"
+  ],
+  volunteer: [
+    "Supported community goals by reliably completing assigned responsibilities",
+    "Worked with diverse people and showed initiative without being asked"
+  ],
+  research: [
+    "Gathered, analysed and organised information to support clear conclusions",
+    "Wrote and presented findings in a structured, evidence-based report"
+  ],
+  leader: [
+    "Organised events and coordinated members to achieve shared goals",
+    "Motivated peers, delegated tasks and kept activities on schedule"
+  ]
+};
+
+function translate() {
+  var task = val("tTask");
+  var num = val("tNum");
+  var out = document.getElementById("tOut");
+  out.innerHTML = "";
+  if (!task) { out.textContent = "Type what you did first."; return; }
+  var first = task.charAt(0).toUpperCase() + task.slice(1);
+  first = first.replace(/[.\s]+$/, "");
+  if (num) { first += " (" + num + ")"; }
+  var lines = [first].concat(EXTRA[document.getElementById("tType").value]);
+  lines.forEach(function (line) {
+    var box = document.createElement("div");
+    box.className = "sug";
+    var p = document.createElement("p");
+    p.textContent = line;
+    var b = document.createElement("button");
+    b.textContent = "Add to resume";
+    b.onclick = function () {
+      var ex = document.getElementById("experience");
+      ex.value = (ex.value ? ex.value + "\n" : "") + "- " + line;
+      update();
+      b.textContent = "Added";
+    };
+    box.appendChild(p);
+    box.appendChild(b);
+    out.appendChild(box);
+  });
+}
 update();
 </script>
 </body>
