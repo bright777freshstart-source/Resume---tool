@@ -5,9 +5,10 @@
 <title>Graduate Resume Builder</title>
 <style>
   :root { --accent: #2563eb; }
-  body { font-family: Arial, sans-serif; max-width: 640px; margin: 20px auto; padding: 0 12px; color: #222; background: #f7f8fc; }
+  * { box-sizing: border-box; }
+  body { font-family: Arial, sans-serif; max-width: 1100px; margin: 16px auto; padding: 0 12px 90px; color: #222; background: #f7f8fc; }
   label { display: block; font-weight: bold; margin-top: 10px; }
-  input, textarea, select { width: 100%; padding: 10px; margin: 4px 0 8px; box-sizing: border-box; font-size: 16px; font-family: inherit; }
+  input, textarea, select { width: 100%; padding: 10px; margin: 4px 0 8px; font-size: 16px; font-family: inherit; }
   textarea { line-height: 1.4; }
   button { padding: 12px 18px; font-size: 16px; margin-top: 12px; background: var(--accent); color: #fff; border: 0; border-radius: 8px; cursor: pointer; }
 
@@ -15,6 +16,12 @@
   .hero h1 { margin: 0 0 6px; font-size: 26px; }
   .hero p { margin: 0 0 10px; }
   .badges span { display: inline-block; background: rgba(255,255,255,.22); border-radius: 20px; padding: 4px 10px; margin: 3px; font-size: 13px; }
+
+  .app { display: flex; gap: 22px; align-items: flex-start; }
+  #editor { flex: 1; min-width: 0; }
+  #previewPane { flex: 1; min-width: 0; position: sticky; top: 10px; max-height: calc(100vh - 20px); overflow: auto; }
+  .previewTop { display: none; }
+  #openPreview { display: none; }
 
   .translator { background: #f2f7ff; border: 1px solid #b9d0f5; border-radius: 8px; padding: 14px; margin: 16px 0; }
   .translator h2 { margin: 0 0 4px; font-size: 18px; }
@@ -27,106 +34,172 @@
   #atsOut { margin-top: 8px; }
   #atsOut p { margin: 4px 0; }
 
-  .previewLabel { font-weight: bold; margin-top: 24px; color: #555; }
-  #resume { border: 1px solid #bbb; padding: 28px; margin-top: 6px; background: #fff; }
-  #rName { margin: 0 0 4px; font-size: 32px; font-weight: 800; letter-spacing: 1px; color: #111; }
-  #rContact { margin: 0 0 16px; color: #555; }
-  #resume h3 { margin: 18px 0 6px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--accent); color: var(--accent); padding-bottom: 3px; }
-  .block { white-space: pre-line; margin: 0; line-height: 1.5; }
+  /* The CV paper */
+  #resume { background: #fff; box-shadow: 0 2px 14px rgba(0,0,0,.2); padding: 34px 32px 40px; min-height: 520px; border-top: 8px solid var(--accent); }
+  .cvHead { border-bottom: 2px solid var(--accent); padding-bottom: 12px; margin-bottom: 6px; }
+  #rName { margin: 0 0 6px; font-size: 32px; font-weight: 800; letter-spacing: 1px; color: #111; text-transform: uppercase; word-wrap: break-word; }
+  #rContact { margin: 0; color: #444; font-size: 14px; }
+  .sec { margin-top: 18px; }
+  .sec h3 { margin: 0 0 6px; font-size: 14px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent); border-bottom: 1px solid #ddd; padding-bottom: 3px; }
+  .txt { margin: 0; line-height: 1.55; font-size: 14.5px; white-space: pre-line; }
+  .sec ul { margin: 0; padding-left: 20px; }
+  .sec li { line-height: 1.55; font-size: 14.5px; margin-bottom: 4px; }
+  .empty { color: #b5b5b5; font-style: italic; }
+
+  @media (max-width: 899px) {
+    .app { display: block; }
+    #previewPane { display: none; position: fixed; inset: 0; z-index: 50; background: #e4e7f0; overflow: auto; max-height: none; padding: 10px; }
+    #previewPane.open { display: block; }
+    .previewTop { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+    .previewTop button { margin: 0; padding: 10px 14px; font-size: 14px; }
+    #openPreview { display: block; position: fixed; right: 14px; bottom: 16px; z-index: 40; margin: 0; border-radius: 30px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(0,0,0,.3); }
+    #resume { padding: 24px 18px 30px; }
+    #rName { font-size: 26px; }
+  }
 
   @media print {
-    body { background: #fff; }
-    .noprint { display: none; }
-    #resume { border: none; margin: 0; padding: 0; }
+    body { background: #fff; margin: 0; padding: 0; max-width: none; }
+    #editor, #openPreview, .previewTop { display: none !important; }
+    .app { display: block; }
+    #previewPane { display: block !important; position: static !important; padding: 0; background: #fff; overflow: visible; max-height: none; }
+    #resume { box-shadow: none; padding: 0; min-height: 0; border-top: 0; }
+    .empty { display: none !important; }
   }
 </style>
 </head>
 <body>
 
-<div class="noprint">
-  <div class="hero">
-    <h1>Land your first job faster</h1>
-    <p>Build a clean, ATS-friendly resume in minutes. No experience needed.</p>
-    <div class="badges"><span>✔ Free to build</span><span>✔ Experience Translator</span><span>✔ ATS score</span></div>
+<div class="app">
+
+  <div id="editor">
+    <div class="hero">
+      <h1>Land your first job faster</h1>
+      <p>Build a clean, ATS-friendly resume in minutes. No experience needed.</p>
+      <div class="badges"><span>✔ Free to build</span><span>✔ Experience Translator</span><span>✔ ATS score</span></div>
+    </div>
+
+    <label>Full name</label>
+    <input id="name" placeholder="Type your name">
+    <label>Email</label>
+    <input id="email">
+    <label>Phone number</label>
+    <input id="phone">
+    <label>Short summary (2-3 sentences)</label>
+    <textarea id="summary" rows="4"></textarea>
+    <label>Education (one item per line)</label>
+    <textarea id="education" rows="5"></textarea>
+    <label>Projects and experience (one item per line)</label>
+    <textarea id="experience" rows="7"></textarea>
+
+    <div class="translator">
+      <h2>Experience Translator</h2>
+      <p class="hint">No job experience? Turn school work, part-time jobs and volunteering into resume lines.</p>
+      <label>What kind of experience?</label>
+      <select id="tType">
+        <option value="service">Part-time job (cafe, shop, restaurant)</option>
+        <option value="group">Group / class project</option>
+        <option value="tutor">Tutoring or teaching</option>
+        <option value="volunteer">Volunteering</option>
+        <option value="research">Research / thesis</option>
+        <option value="leader">Club or leadership role</option>
+      </select>
+      <label>What did you do?</label>
+      <input id="tTask" placeholder="Start with a verb: Served customers at a cafe">
+      <label>Any number? (optional)</label>
+      <input id="tNum" placeholder="e.g. 50 customers a day, team of 5, 20 hours a week">
+      <button type="button" onclick="runTranslate()">Translate</button>
+      <div id="tOut"></div>
+    </div>
+
+    <label>Skills (one item per line)</label>
+    <textarea id="skills" rows="4"></textarea>
+
+    <label>Resume color</label>
+    <div id="swatches"></div>
+
+    <button type="button" onclick="checkATS()">Check my resume (free)</button>
+    <div id="atsOut"></div>
+
+    <button type="button" onclick="window.print()">Download PDF</button>
   </div>
 
-  <label>Full name</label>
-  <input id="name" placeholder="Type your name">
-  <label>Email</label>
-  <input id="email">
-  <label>Phone</label>
-  <input id="phone">
-  <label>Short summary (2-3 sentences)</label>
-  <textarea id="summary" rows="4"></textarea>
-  <label>Education (one item per line)</label>
-  <textarea id="education" rows="5"></textarea>
-  <label>Projects and experience (one item per line)</label>
-  <textarea id="experience" rows="7"></textarea>
-
-  <div class="translator">
-    <h2>Experience Translator</h2>
-    <p class="hint">No job experience? Turn school work, part-time jobs and volunteering into resume lines.</p>
-    <label>What kind of experience?</label>
-    <select id="tType">
-      <option value="service">Part-time job (cafe, shop, restaurant)</option>
-      <option value="group">Group / class project</option>
-      <option value="tutor">Tutoring or teaching</option>
-      <option value="volunteer">Volunteering</option>
-      <option value="research">Research / thesis</option>
-      <option value="leader">Club or leadership role</option>
-    </select>
-    <label>What did you do?</label>
-    <input id="tTask" placeholder="Start with a verb: Served customers at a cafe">
-    <label>Any number? (optional)</label>
-    <input id="tNum" placeholder="e.g. 50 customers a day, team of 5, 20 hours a week">
-    <button type="button" onclick="runTranslate()">Translate</button>
-    <div id="tOut"></div>
+  <div id="previewPane">
+    <div class="previewTop">
+      <button type="button" onclick="closePreview()">← Back to editing</button>
+      <button type="button" onclick="window.print()">Download PDF</button>
+    </div>
+    <div id="resume">
+      <div class="cvHead">
+        <h2 id="rName">Your Name</h2>
+        <p id="rContact"></p>
+      </div>
+      <div class="sec" id="secSummary"><h3>Professional Summary</h3><p class="txt" id="rSummary"></p></div>
+      <div class="sec" id="secEducation"><h3>Education</h3><p class="txt" id="rEducation"></p></div>
+      <div class="sec" id="secExperience"><h3>Projects and Experience</h3><ul id="rExperience"></ul></div>
+      <div class="sec" id="secSkills"><h3>Skills</h3><p class="txt" id="rSkills"></p></div>
+    </div>
   </div>
 
-  <label>Skills (one item per line)</label>
-  <textarea id="skills" rows="4"></textarea>
-
-  <label>Resume color</label>
-  <div id="swatches"></div>
-
-  <button type="button" onclick="checkATS()">Check my resume (free)</button>
-  <div id="atsOut"></div>
-
-  <button type="button" onclick="window.print()">Download PDF</button>
-
-  <div class="previewLabel">Live preview (updates as you type)</div>
 </div>
 
-<div id="resume">
-  <h2 id="rName">Your Name</h2>
-  <p id="rContact"></p>
-  <div id="secSummary"><h3>Summary</h3><p class="block" id="rSummary"></p></div>
-  <div id="secEducation"><h3>Education</h3><p class="block" id="rEducation"></p></div>
-  <div id="secExperience"><h3>Projects and Experience</h3><p class="block" id="rExperience"></p></div>
-  <div id="secSkills"><h3>Skills</h3><p class="block" id="rSkills"></p></div>
-</div>
+<button type="button" id="openPreview" onclick="openPreview()">👁 Preview CV</button>
 
 <script>
 function val(id) { return document.getElementById(id).value.trim(); }
-function show(sectionId, textId, value) {
-  document.getElementById(textId).textContent = value;
-  document.getElementById(sectionId).style.display = value ? "block" : "none";
+function lines(id) {
+  return val(id).split("\n").map(function (l) { return l.replace(/^[-•*]\s*/, "").trim(); }).filter(Boolean);
 }
+
+function setText(secId, textId, value, sample) {
+  var sec = document.getElementById(secId);
+  var box = document.getElementById(textId);
+  if (value) { box.textContent = value; sec.classList.remove("empty"); }
+  else { box.textContent = sample; sec.classList.add("empty"); }
+}
+
 function update() {
-  document.getElementById("rName").textContent = val("name") || "Your Name";
-  var contact = [val("email"), val("phone")].filter(Boolean).join(" | ");
-  document.getElementById("rContact").textContent = contact;
-  show("secSummary", "rSummary", val("summary"));
-  show("secEducation", "rEducation", val("education"));
-  show("secExperience", "rExperience", val("experience"));
-  show("secSkills", "rSkills", val("skills"));
+  var nameEl = document.getElementById("rName");
+  var name = val("name");
+  nameEl.textContent = name || "Your Name";
+  nameEl.classList.toggle("empty", !name);
+
+  var contactEl = document.getElementById("rContact");
+  var contact = [val("email"), val("phone")].filter(Boolean).join("  |  ");
+  contactEl.textContent = contact || "email@example.com  |  Phone number";
+  contactEl.classList.toggle("empty", !contact);
+
+  setText("secSummary", "rSummary", val("summary"), "Your short summary will appear here.");
+  setText("secEducation", "rEducation", lines("education").join("\n"), "Your school, course and year will appear here.");
+  setText("secSkills", "rSkills", lines("skills").join("  •  "), "Your skills will appear here.");
+
+  var ul = document.getElementById("rExperience");
+  var sec = document.getElementById("secExperience");
+  ul.innerHTML = "";
+  var ex = lines("experience");
+  if (ex.length) {
+    sec.classList.remove("empty");
+    ex.forEach(function (t) {
+      var li = document.createElement("li");
+      li.textContent = t;
+      ul.appendChild(li);
+    });
+  } else {
+    sec.classList.add("empty");
+    var li = document.createElement("li");
+    li.textContent = "Your experience and projects will appear here.";
+    ul.appendChild(li);
+  }
 }
+
 ["name", "email", "phone", "summary", "education", "experience", "skills"].forEach(function (id) {
   var el = document.getElementById(id);
   el.addEventListener("input", update);
   el.addEventListener("keyup", update);
   el.addEventListener("change", update);
 });
+
+function openPreview() { document.getElementById("previewPane").classList.add("open"); window.scrollTo(0, 0); }
+function closePreview() { document.getElementById("previewPane").classList.remove("open"); }
 
 var EXTRA = {
   service: [
@@ -164,8 +237,8 @@ function runTranslate() {
   var first = task.charAt(0).toUpperCase() + task.slice(1);
   first = first.replace(/[.\s]+$/, "");
   if (num) { first += " (" + num + ")"; }
-  var lines = [first].concat(EXTRA[document.getElementById("tType").value]);
-  lines.forEach(function (line) {
+  var list = [first].concat(EXTRA[document.getElementById("tType").value]);
+  list.forEach(function (line) {
     var box = document.createElement("div");
     box.className = "sug";
     var p = document.createElement("p");
@@ -175,7 +248,7 @@ function runTranslate() {
     b.textContent = "Add to resume";
     b.onclick = function () {
       var ex = document.getElementById("experience");
-      ex.value = (ex.value ? ex.value + "\n" : "") + "- " + line;
+      ex.value = (ex.value ? ex.value + "\n" : "") + line;
       update();
       b.textContent = "Added";
     };
@@ -194,11 +267,11 @@ function checkATS() {
   if (val("summary").length < 60) miss(10, "Write a 2-3 sentence summary.");
   if (!val("education")) miss(15, "Add your education.");
   var exp = val("experience");
-  var lines = exp ? exp.split("\n").filter(Boolean) : [];
-  if (lines.length < 3) miss(15, "Add at least 3 experience lines. Try the Experience Translator.");
+  var exLines = exp ? exp.split("\n").filter(Boolean) : [];
+  if (exLines.length < 3) miss(15, "Add at least 3 experience lines. Try the Experience Translator.");
   if (!/\d/.test(exp)) miss(10, "Add numbers (people, hours, results) to show impact.");
-  var skills = val("skills").split("\n").filter(Boolean);
-  if (skills.length < 5) miss(10, "List at least 5 skills.");
+  var sk = val("skills").split("\n").filter(Boolean);
+  if (sk.length < 5) miss(10, "List at least 5 skills.");
   if (score < 0) score = 0;
   var out = document.getElementById("atsOut");
   out.innerHTML = "";
