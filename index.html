@@ -84,6 +84,14 @@
   #resume[data-layout="split"] #rContact { text-align: right; }
   #resume[data-layout="split"] .sec h3 { font-style: italic; font-variant: small-caps; text-transform: none; font-size: 16px; border-bottom: 1px solid #ddd; }
 
+  .rtitle { margin: 0 0 6px; font-size: 15px; font-weight: bold; color: var(--accent); }
+  #resume[data-layout="minimal"] .cvHead { text-align: left; }
+  #resume[data-layout="minimal"] .sec h3 { letter-spacing: 3px; font-size: 12px; border: 0; }
+  #resume[data-layout="compact"] { padding: 22px 26px 26px; }
+  #resume[data-layout="compact"] .cvHead { text-align: left; border-bottom: 2px solid var(--accent); }
+  #resume[data-layout="compact"] .sec { margin-top: 10px; }
+  #resume[data-layout="compact"] .sec h3 { border-bottom: 1px solid #ccc; font-size: 12px; }
+  #resume[data-layout="compact"] .txt, #resume[data-layout="compact"] .sec li { font-size: 13px; line-height: 1.4; margin-bottom: 1px; }
   .foot { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; }
 
   @media (max-width: 899px) {
@@ -148,12 +156,25 @@
     <input id="email">
     <label>Phone number</label>
     <input id="phone">
+    <label>Location</label>
+    <input id="location" placeholder="e.g. Lagos, Nigeria">
+    <label>Professional title</label>
+    <input id="title" placeholder="e.g. Aspiring Software Developer | Computer Science Graduate">
+    <label>Professional links (optional, one per line)</label>
+    <textarea id="links" rows="2" placeholder="LinkedIn, portfolio or GitHub link"></textarea>
     <label>Short summary (2-3 sentences)</label>
     <textarea id="summary" rows="4"></textarea>
     <label>Education (one item per line)</label>
     <textarea id="education" rows="5"></textarea>
     <label>Projects and experience (one item per line)</label>
+    <p class="hint">Stuck on wording? Use the Experience Translator lower down.</p>
     <textarea id="experience" rows="7"></textarea>
+
+
+    <label>Skills (one item per line)</label>
+    <textarea id="skills" rows="4"></textarea>
+
+    <div id="extraFields"></div>
 
     <div class="box">
       <h2>Experience Translator</h2>
@@ -175,14 +196,16 @@
       <div id="tOut"></div>
     </div>
 
-    <label>Skills (one item per line)</label>
-    <textarea id="skills" rows="4"></textarea>
-
     <label>Resume color</label>
     <div id="swatches"></div>
+    <label>Or pick any colour</label>
+    <input type="color" id="pick" value="#1B2B47" style="width:64px;height:42px;padding:2px">
 
+    <label>Job description (optional, to check keywords)</label>
+    <textarea id="jd" rows="3" placeholder="Paste the job advert here"></textarea>
     <button type="button" onclick="checkATS()">Check my resume (free)</button>
     <div id="atsOut"></div>
+    <p class="hint">A guide only. No checker can promise your resume will pass every employer's ATS.</p>
 
     <div class="paybox">
       <h2 id="payTitle">Download your resume</h2>
@@ -190,8 +213,8 @@
       <button type="button" onclick="downloadPDF()">Download PDF</button>
       <button type="button" class="grey" onclick="downloadWord()">Download Word</button>
       <button type="button" class="pay" id="unlockBtn" onclick="pay()">Unlock clean PDF and Word</button>
-      <p class="hint" id="codeRow">Already paid? Enter your unlock code:<br>
-        <input id="codeIn" placeholder="Enter unlock code" style="max-width:220px">
+      <p class="hint" id="codeRow">Already paid? Enter your payment reference:<br>
+        <input id="codeIn" placeholder="Payment reference" style="max-width:220px">
         <button type="button" class="grey" onclick="enterCode()" style="margin:0;padding:8px 12px;font-size:14px">Unlock</button>
       </p>
     </div>
@@ -206,6 +229,7 @@
     <div id="resume" data-layout="banner">
       <div class="cvHead">
         <h2 id="rName">Your Name</h2>
+        <p class="rtitle" id="rTitle"></p>
         <p id="rContact"></p>
       </div>
       <div class="sec" id="secSummary"><h3>Professional Summary</h3><p class="txt" id="rSummary"></p></div>
@@ -288,28 +312,30 @@
 
 <button type="button" id="openPreview" onclick="openPreview()">Preview CV</button>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://js.paystack.co/v1/inline.js"></script>
 <script>
 /* ====== YOUR SETTINGS ======
-   PAYWALL_ON = false  -> everything is free (current mode)
-   PAYWALL_ON = true   -> clean resume downloads need payment (set the 2 lines below first)
+   PAYWALL_ON = false -> everything is free
+   PAYWALL_ON = true  -> clean downloads need payment (TEST MODE keys)
 */
-var PAYWALL_ON = false;
-var PAY_LINK = "PASTE_YOUR_PAYMENT_LINK_HERE";
-var UNLOCK_SECRET = "CHANGE-THIS-SECRET";
-var PRICE = "$3.99";
+var PAYWALL_ON = true;
+var PAYSTACK_PK = "pk_test_1914b8bc6804fe175f97da09b385ca501ed8912c";
+var PRICE_NGN = 2000;   /* keep equal to EXPECTED_KOBO / 100 in functions/api/verify.js */
+var PRICE = "\u20a62,000";
 /* ============================ */
 
 var TEMPLATES = [
   { cat: "Corporate / Executive", name: "The Boardroom", font: "Garamond, Georgia, serif", word: "Garamond", accent: "#1B2B47", layout: "banner" },
   { cat: "Corporate / Executive", name: "The Partner", font: "Garamond, Georgia, serif", word: "Garamond", accent: "#1B2B47", layout: "left" },
   { cat: "Tech / Engineering", name: "The Builder", font: "Helvetica, Arial, sans-serif", word: "Arial", accent: "#3B5168", layout: "left" },
-  { cat: "Tech / Engineering", name: "The Architect", font: "Helvetica, Arial, sans-serif", word: "Arial", accent: "#3B5168", layout: "banner" },
+  { cat: "Tech / Engineering", name: "The Architect", font: "Helvetica, Arial, sans-serif", word: "Arial", accent: "#3B5168", layout: "compact" },
   { cat: "Creative", name: "The Editorial (clay)", font: "Cambria, Georgia, serif", word: "Cambria", accent: "#A85432", layout: "split" },
-  { cat: "Creative", name: "The Studio (sage)", font: "Cambria, Georgia, serif", word: "Cambria", accent: "#6B7F5C", layout: "banner" },
+  { cat: "Creative", name: "The Studio (sage)", font: "Cambria, Georgia, serif", word: "Cambria", accent: "#6B7F5C", layout: "minimal" },
   { cat: "Healthcare / Education", name: "The Practitioner", font: "Georgia, serif", word: "Georgia", accent: "#2A6B6E", layout: "banner" },
-  { cat: "Healthcare / Education", name: "The Educator", font: "Georgia, serif", word: "Georgia", accent: "#2A6B6E", layout: "left" },
+  { cat: "Healthcare / Education", name: "The Educator", font: "Georgia, serif", word: "Georgia", accent: "#2A6B6E", layout: "minimal" },
   { cat: "Academic / Research", name: "The Scholar", font: "Garamond, Georgia, serif", word: "Garamond", accent: "#6B2737", layout: "banner" },
-  { cat: "Academic / Research", name: "The Researcher", font: "Garamond, Georgia, serif", word: "Garamond", accent: "#6B2737", layout: "left" },
+  { cat: "Academic / Research", name: "The Researcher", font: "Garamond, Georgia, serif", word: "Garamond", accent: "#6B2737", layout: "compact" },
   { cat: "Trades / Service", name: "The Operator", font: "Calibri, Arial, sans-serif", word: "Calibri", accent: "#C2511F", layout: "left" },
   { cat: "Trades / Service", name: "The Foreman", font: "Calibri, Arial, sans-serif", word: "Calibri", accent: "#2D2D2D", layout: "banner" }
 ];
@@ -360,18 +386,32 @@ function isPaid() {
 }
 function checkUnlockLink() {
   try {
-    var q = new URLSearchParams(window.location.search).get("unlock");
-    if (q && q === UNLOCK_SECRET) {
-      localStorage.setItem("paid", "1");
+    if (new URLSearchParams(window.location.search).get("reset") === "1") {
+      localStorage.removeItem("paid");
       history.replaceState(null, "", window.location.pathname);
     }
   } catch (e) {}
 }
+
+function verifyPayment(ref) {
+  fetch("/api/verify?reference=" + encodeURIComponent(ref))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d.ok) {
+        try { localStorage.setItem("paid", "1"); } catch (e) {}
+        applyPaid();
+        alert("Payment confirmed. Your downloads are unlocked.");
+      } else {
+        alert("We could not confirm that payment. Reference: " + ref);
+      }
+    })
+    .catch(function () { alert("Could not reach the server. Try again."); });
+}
+
 function enterCode() {
-  if (document.getElementById("codeIn").value.trim() === UNLOCK_SECRET) {
-    try { localStorage.setItem("paid", "1"); } catch (e) {}
-    applyPaid();
-  } else { alert("That code is not correct."); }
+  var ref = document.getElementById("codeIn").value.trim();
+  if (!ref) { alert("Enter your payment reference."); return; }
+  verifyPayment(ref);
 }
 function applyPaid() {
   var paid = isPaid();
@@ -390,8 +430,25 @@ function applyPaid() {
   }
 }
 function pay() {
-  if (PAY_LINK.indexOf("PASTE") === 0) { alert("Payments are coming soon."); return; }
-  window.location.href = PAY_LINK;
+  var email = val("email");
+  if (!email || email.indexOf("@") < 1) {
+    email = prompt("Enter your email for the payment receipt:") || "";
+  }
+  if (email.indexOf("@") < 1) { alert("A valid email is needed to pay."); return; }
+  if (typeof PaystackPop === "undefined") {
+    alert("Payment is still loading. Check your internet and try again.");
+    return;
+  }
+  var handler = PaystackPop.setup({
+    key: PAYSTACK_PK,
+    email: email,
+    amount: PRICE_NGN * 100,
+    currency: "NGN",
+    ref: "FSR" + Date.now() + Math.floor(Math.random() * 100000),
+    callback: function (res) { verifyPayment(res.reference); },
+    onClose: function () {}
+  });
+  handler.openIframe();
 }
 function downloadPDF() { window.print(); }
 
@@ -407,21 +464,51 @@ function saveDoc(html, filename) {
 
 function downloadWord() {
   if (!isPaid()) { pay(); return; }
-  var t = current;
-  var center = t.layout === "banner" ? "center" : "left";
-  var head = 'style="color:' + t.accent + ';font-size:12pt;text-transform:uppercase;border-bottom:1px solid ' + t.accent + ';margin:14pt 0 4pt"';
-  function sec(title, inner) { return inner ? "<h2 " + head + ">" + title + "</h2>" + inner : ""; }
-  var contact = [val("email"), val("phone")].filter(Boolean).join("  |  ");
-  var html = '<html><head><meta charset="utf-8"><title>Resume</title></head>' +
-    '<body style="font-family:' + t.word + ';font-size:11pt">' +
-    '<h1 style="text-align:' + center + ';font-size:22pt;margin:0">' + esc(val("name") || "Your Name").toUpperCase() + "</h1>" +
-    '<p style="text-align:' + center + ';margin:2pt 0 8pt">' + esc(contact) + "</p>" +
-    sec("Professional Summary", val("summary") ? "<p>" + esc(val("summary")) + "</p>" : "") +
-    sec("Education", lines("education").map(function (l) { return "<p style='margin:0'>" + esc(l) + "</p>"; }).join("")) +
-    sec("Projects and Experience", lines("experience").length ? "<ul>" + lines("experience").map(function (l) { return "<li>" + esc(l) + "</li>"; }).join("") + "</ul>" : "") +
-    sec("Skills", lines("skills").length ? "<p>" + esc(lines("skills").join(", ")) + "</p>" : "") +
-    "</body></html>";
-  saveDoc(html, "resume.doc");
+  if (typeof JSZip === "undefined") { alert("Word export is still loading. Check your internet and try again."); return; }
+  var t = current, font = t.word;
+  var col = (getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || t.accent).replace("#", "");
+  var mid = t.layout === "banner" ? "center" : "left";
+  function xp(text, o) {
+    o = o || {};
+    return '<w:p><w:pPr>' + (o.bd ? '<w:pBdr><w:bottom w:val="single" w:sz="6" w:space="1" w:color="' + col + '"/></w:pBdr>' : '') +
+      '<w:spacing w:before="' + (o.sb || 0) + '" w:after="' + (o.sa === undefined ? 40 : o.sa) + '"/>' +
+      (o.ind ? '<w:ind w:left="360" w:hanging="220"/>' : '') + (o.jc ? '<w:jc w:val="' + o.jc + '"/>' : '') +
+      '</w:pPr><w:r><w:rPr><w:rFonts w:ascii="' + font + '" w:hAnsi="' + font + '"/>' + (o.b ? '<w:b/>' : '') +
+      (o.c ? '<w:color w:val="' + o.c + '"/>' : '') + '<w:sz w:val="' + (o.s || 22) + '"/></w:rPr><w:t xml:space="preserve">' +
+      esc(text) + '</w:t></w:r></w:p>';
+  }
+  var body = xp((val("name") || "Your Name").toUpperCase(), { b: 1, s: 44, jc: mid, sa: 20 });
+  if (val("title")) { body += xp(val("title"), { b: 1, c: col, s: 24, jc: mid }); }
+  body += xp(contactList(), { s: 20, jc: mid, sa: 120 });
+  var secs = [
+    ["Professional Summary", val("summary") ? [val("summary")] : [], 0],
+    ["Education", lines("education"), 0],
+    ["Projects and Experience", lines("experience"), 1],
+    ["Skills", lines("skills").length ? [lines("skills").join(", ")] : [], 0]
+  ];
+  EXTRAS.forEach(function (x) {
+    var it = lines("x_" + x.id);
+    secs.push([x.t, x.inline && it.length ? [it.join(", ")] : it, x.inline ? 0 : 1]);
+  });
+  secs.forEach(function (sc) {
+    if (!sc[1].length) { return; }
+    body += xp(sc[0].toUpperCase(), { b: 1, c: col, s: 24, bd: 1, sb: 200, sa: 80 });
+    sc[1].forEach(function (l) { body += xp(sc[2] ? "\u2022  " + l : l, { ind: sc[2] }); });
+  });
+  var doc = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>' + body +
+    '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>';
+  var z = new JSZip();
+  z.file("[Content_Types].xml", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
+  z.file("_rels/.rels", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+  z.file("word/document.xml", doc);
+  z.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }).then(function (blob) {
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "resume.docx";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
 }
 
 /* ---- Templates ---- */
@@ -464,10 +551,14 @@ function update() {
   nameEl.classList.toggle("empty", !name);
 
   var contactEl = document.getElementById("rContact");
-  var contact = [val("email"), val("phone")].filter(Boolean).join("  |  ");
+  var contact = contactList();
   contactEl.textContent = contact || "email@example.com  |  Phone number";
   contactEl.classList.toggle("empty", !contact);
 
+  var ti = document.getElementById("rTitle");
+  ti.textContent = val("title") || "Your professional title";
+  ti.classList.toggle("empty", !val("title"));
+  updateExtras();
   setText("secSummary", "rSummary", val("summary"), "Your short summary will appear here.");
   setText("secEducation", "rEducation", lines("education").join("\n"), "Your school, course and year will appear here.");
   setText("secSkills", "rSkills", lines("skills").join(", "), "Your skills will appear here.");
@@ -490,7 +581,7 @@ function update() {
     ul.appendChild(li);
   }
 }
-["name", "email", "phone", "summary", "education", "experience", "skills"].forEach(function (id) {
+["name", "email", "phone", "location", "title", "links", "summary", "education", "experience", "skills"].forEach(function (id) {
   var el = document.getElementById(id);
   el.addEventListener("input", update);
   el.addEventListener("keyup", update);
@@ -553,6 +644,23 @@ function checkATS() {
   if (!/\d/.test(exp)) miss(10, "Add numbers (people, hours, results) to show impact.");
   var sk = val("skills").split("\n").filter(Boolean);
   if (sk.length < 5) miss(10, "List at least 5 skills.");
+  if (val("summary").length > 600) miss(5, "Shorten your summary to about 3 sentences.");
+  if (!/\b(19|20)\d{2}\b/.test(val("education") + " " + exp)) miss(5, "Add dates (years) to your education and experience.");
+  if (val("title") === "") miss(3, "Add a professional title under your name.");
+  var jd = val("jd");
+  if (jd) {
+    var stop = " this that with have will from your they their been were what when where which about into more than also such other these those should would could there them then only over some very able work working team role job company "
+    var all = (document.getElementById("resume").innerText || "").toLowerCase();
+    all += " " + ["summary","education","experience","skills"].map(function (i) { return val(i).toLowerCase(); }).join(" ");
+    var freq = {};
+    (jd.toLowerCase().match(/[a-z][a-z+#.]{3,}/g) || []).forEach(function (w) {
+      w = w.replace(/\.+$/, "");
+      if (w.length > 3 && stop.indexOf(" " + w + " ") < 0) freq[w] = (freq[w] || 0) + 1;
+    });
+    var top = Object.keys(freq).sort(function (a, b) { return freq[b] - freq[a]; }).slice(0, 15);
+    var missing = top.filter(function (w) { return all.indexOf(w) < 0; });
+    if (missing.length) miss(Math.min(15, missing.length * 2), "Keywords in the job advert not found in your resume: " + missing.join(", ") + ". Add them only where they are true for you.");
+  }
   if (score < 0) score = 0;
   var out = document.getElementById("atsOut");
   out.innerHTML = "";
@@ -582,7 +690,8 @@ function buildLetter() {
   } else {
     p1 = "I am writing to apply for the " + job + " position at " + co + ". As " + grad + ", I am eager to bring my energy, strong work ethic and willingness to learn to your team.";
   }
-  var parts = ["Dear " + mgr + ",", p1];
+  var today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  var parts = [today, "Dear " + mgr + ",", p1];
   if (ach) { parts.push("A good example of my work: " + ach + ". This taught me how to take responsibility, work with others and finish what I start."); }
   if (str) { parts.push("My strengths include " + str + ". I use them to solve problems, communicate clearly and adapt quickly in new environments."); }
   parts.push("I would welcome the chance to discuss how I can contribute to " + co + ". Thank you for your time and consideration.");
@@ -650,6 +759,59 @@ function makeLinked() {
   b.onclick = function () { document.documentElement.style.setProperty("--accent", c); };
   document.getElementById("swatches").appendChild(b);
 });
+
+/* ---- Extra resume sections ---- */
+var EXTRAS = [
+  { id: "languages", t: "Languages", label: "Languages and level (one per line)", ph: "English - Fluent\nYoruba - Native", sample: "Add the languages you speak and your level.", inline: true },
+  { id: "awards", t: "Awards and Achievements", label: "Awards and achievements (one per line)", ph: "Best Graduating Student, Dept. of Biology, 2025", sample: "Add scholarships, awards and competitions." },
+  { id: "certs", t: "Certifications", label: "Certifications (one per line)", ph: "Google Data Analytics Certificate, 2025", sample: "Add certificates, organisation and date." },
+  { id: "work", t: "Selected Work", label: "Selected work: projects, research, portfolio (one per line)", ph: "Final-year project: Student attendance app", sample: "Add projects or research that show your ability." },
+  { id: "volunteer", t: "Volunteering", label: "Volunteering and student organisations (one per line)", ph: "Welfare Officer, Student Union, 2024", sample: "Add volunteer work or leadership roles." },
+  { id: "interests", t: "Interests", label: "Interests (one per line)", ph: "Chess\nPublic speaking", sample: "Add interests relevant to the job.", inline: true },
+  { id: "refs", t: "References", label: "References (optional, one per line)", ph: "Available on request", sample: "Add referees, or leave empty." }
+];
+(function () {
+  var f = document.getElementById("extraFields");
+  var wm = document.getElementById("wm");
+  EXTRAS.forEach(function (x) {
+    var l = document.createElement("label"); l.textContent = x.label;
+    var ta = document.createElement("textarea"); ta.id = "x_" + x.id; ta.rows = 3; ta.placeholder = x.ph;
+    ta.addEventListener("input", update);
+    f.appendChild(l); f.appendChild(ta);
+    var sec = document.createElement("div"); sec.className = "sec empty"; sec.id = "sec_x_" + x.id;
+    sec.innerHTML = "<h3>" + x.t + "</h3>" + (x.inline ? '<p class="txt"></p>' : "<ul></ul>");
+    wm.parentNode.insertBefore(sec, wm);
+  });
+  document.getElementById("pick").addEventListener("input", function () {
+    document.documentElement.style.setProperty("--accent", this.value);
+  });
+})();
+function contactList() {
+  return [val("email"), val("phone"), val("location")].concat(lines("links")).filter(Boolean).join("  |  ");
+}
+function updateExtras() {
+  EXTRAS.forEach(function (x) {
+    var items = lines("x_" + x.id);
+    var sec = document.getElementById("sec_x_" + x.id);
+    sec.classList.toggle("empty", !items.length);
+    if (x.inline) {
+      sec.querySelector("p").textContent = items.length ? items.join(", ") : x.sample;
+    } else {
+      var ul = sec.querySelector("ul");
+      ul.innerHTML = "";
+      (items.length ? items : [x.sample]).forEach(function (t) {
+        var li = document.createElement("li"); li.textContent = t; ul.appendChild(li);
+      });
+    }
+  });
+}
+function extrasWord(sec) {
+  return EXTRAS.map(function (x) {
+    var items = lines("x_" + x.id);
+    if (!items.length) { return ""; }
+    return sec(x.t, x.inline ? "<p>" + esc(items.join(", ")) + "</p>" : "<ul>" + items.map(function (l) { return "<li>" + esc(l) + "</li>"; }).join("") + "</ul>");
+  }).join("");
+}
 
 /* ---- Start ---- */
 buildTemplateMenu();
