@@ -4,11 +4,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Graduate Resume Builder</title>
 <style>
-  body { font-family: Arial, sans-serif; max-width: 640px; margin: 20px auto; padding: 0 12px; color: #222; }
+  :root { --accent: #2563eb; }
+  body { font-family: Arial, sans-serif; max-width: 640px; margin: 20px auto; padding: 0 12px; color: #222; background: #f7f8fc; }
   label { display: block; font-weight: bold; margin-top: 10px; }
   input, textarea, select { width: 100%; padding: 10px; margin: 4px 0 8px; box-sizing: border-box; font-size: 16px; font-family: inherit; }
   textarea { line-height: 1.4; }
-  button { padding: 12px 18px; font-size: 16px; margin-top: 12px; }
+  button { padding: 12px 18px; font-size: 16px; margin-top: 12px; background: var(--accent); color: #fff; border: 0; border-radius: 8px; cursor: pointer; }
+
+  .hero { background: linear-gradient(135deg, #2563eb, #7c3aed); color: #fff; border-radius: 12px; padding: 22px 16px; margin-bottom: 16px; text-align: center; }
+  .hero h1 { margin: 0 0 6px; font-size: 26px; }
+  .hero p { margin: 0 0 10px; }
+  .badges span { display: inline-block; background: rgba(255,255,255,.22); border-radius: 20px; padding: 4px 10px; margin: 3px; font-size: 13px; }
 
   .translator { background: #f2f7ff; border: 1px solid #b9d0f5; border-radius: 8px; padding: 14px; margin: 16px 0; }
   .translator h2 { margin: 0 0 4px; font-size: 18px; }
@@ -17,13 +23,18 @@
   .sug p { margin: 0 0 6px; line-height: 1.4; }
   .sug button { margin: 0; padding: 8px 14px; font-size: 14px; }
 
+  .sw { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #bbb; margin: 4px; padding: 0; }
+  #atsOut { margin-top: 8px; }
+  #atsOut p { margin: 4px 0; }
+
   #resume { border: 1px solid #bbb; padding: 28px; margin-top: 24px; background: #fff; }
-  #rName { margin: 0 0 4px; font-size: 28px; letter-spacing: 1px; }
+  #rName { margin: 0 0 4px; font-size: 28px; letter-spacing: 1px; color: var(--accent); }
   #rContact { margin: 0 0 16px; color: #555; }
-  #resume h3 { margin: 18px 0 6px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #222; padding-bottom: 3px; }
+  #resume h3 { margin: 18px 0 6px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--accent); color: var(--accent); padding-bottom: 3px; }
   .block { white-space: pre-line; margin: 0; line-height: 1.5; }
 
   @media print {
+    body { background: #fff; }
     .noprint { display: none; }
     #resume { border: none; margin: 0; padding: 0; }
   }
@@ -32,7 +43,12 @@
 <body>
 
 <div class="noprint">
-  <h1>Graduate Resume Builder</h1>
+  <div class="hero">
+    <h1>Land your first job faster</h1>
+    <p>Build a clean, ATS-friendly resume in minutes. No experience needed.</p>
+    <div class="badges"><span>✔ Free to build</span><span>✔ Experience Translator</span><span>✔ ATS score</span></div>
+  </div>
+
   <label>Full name</label>
   <input id="name">
   <label>Email</label>
@@ -68,6 +84,13 @@
 
   <label>Skills (one item per line)</label>
   <textarea id="skills" rows="4"></textarea>
+
+  <label>Resume color</label>
+  <div id="swatches"></div>
+
+  <button onclick="checkATS()">Check my resume (free)</button>
+  <div id="atsOut"></div>
+
   <button onclick="window.print()">Download PDF</button>
 </div>
 
@@ -143,18 +166,4 @@ function translate() {
     p.textContent = line;
     var b = document.createElement("button");
     b.textContent = "Add to resume";
-    b.onclick = function () {
-      var ex = document.getElementById("experience");
-      ex.value = (ex.value ? ex.value + "\n" : "") + "- " + line;
-      update();
-      b.textContent = "Added";
-    };
-    box.appendChild(p);
-    box.appendChild(b);
-    out.appendChild(box);
-  });
-}
-update();
-</script>
-</body>
-</html>
+    b.oncli
