@@ -3,44 +3,67 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FreshStart Resume - Free Resume Builder for Graduates</title>
-<meta name="description" content="Build a professional, ATS-friendly resume in minutes. 12 templates, Experience Translator and ATS score. Made for graduates.">
+<title>FreshStart Resume - Free Resume, Cover Letter and LinkedIn Tools for Graduates</title>
+<meta name="description" content="Build an ATS-friendly resume, write a cover letter and fix your LinkedIn profile in minutes. 12 templates. Made for graduates.">
 <style>
-  :root { --accent: #1B2B47; }
+  :root { --accent: #1B2B47; --bg: #0b1020; --card: #131b36; --line: #2b3a67; --text: #e8ecf8; --muted: #9aa7c7; --g1: #6366f1; --g2: #ec4899; }
   * { box-sizing: border-box; }
-  body { font-family: Arial, sans-serif; max-width: 1100px; margin: 16px auto; padding: 0 12px 90px; color: #222; background: #f7f8fc; }
-  label { display: block; font-weight: bold; margin-top: 10px; }
-  input, textarea, select { width: 100%; padding: 10px; margin: 4px 0 8px; font-size: 16px; font-family: inherit; }
+  body { font-family: Arial, sans-serif; max-width: 1100px; margin: 0 auto; padding: 14px 12px 90px; color: var(--text); background: var(--bg); }
+  label { display: block; font-weight: bold; margin-top: 10px; font-size: 14px; color: var(--text); }
+  input, textarea, select { width: 100%; padding: 11px; margin: 4px 0 8px; font-size: 16px; font-family: inherit; background: #0f1730; color: #fff; border: 1px solid var(--line); border-radius: 8px; }
+  input::placeholder, textarea::placeholder { color: #6b7aa3; }
   textarea { line-height: 1.4; }
-  button { padding: 12px 18px; font-size: 16px; margin-top: 12px; background: #2563eb; color: #fff; border: 0; border-radius: 8px; cursor: pointer; }
-  button.pay { background: #16a34a; }
-  button.grey { background: #64748b; }
+  button { padding: 12px 18px; font-size: 16px; margin-top: 12px; background: linear-gradient(135deg, var(--g1), var(--g2)); color: #fff; border: 0; border-radius: 10px; cursor: pointer; font-weight: bold; }
+  button.pay { background: linear-gradient(135deg, #059669, #10b981); }
+  button.grey { background: #3a4670; }
 
-  .hero { background: linear-gradient(135deg, #2563eb, #7c3aed); color: #fff; border-radius: 12px; padding: 22px 16px; margin-bottom: 16px; text-align: center; }
-  .hero h1 { margin: 0 0 6px; font-size: 26px; }
-  .hero p { margin: 0 0 10px; }
-  .badges span { display: inline-block; background: rgba(255,255,255,.22); border-radius: 20px; padding: 4px 12px; margin: 3px; font-size: 13px; }
+  /* Hero */
+  .hero { position: relative; overflow: hidden; border-radius: 16px; padding: 34px 18px; margin-bottom: 14px; text-align: center; color: #fff;
+    background: radial-gradient(circle at 15% 20%, rgba(236,72,153,.55), transparent 45%), radial-gradient(circle at 85% 80%, rgba(99,102,241,.6), transparent 50%), linear-gradient(135deg, #1e1b4b, #312e81); }
+  .hero h1 { margin: 0 0 8px; font-size: 30px; line-height: 1.15; }
+  .hero p { margin: 0 auto 12px; max-width: 560px; color: #dfe3ff; }
+  .badges span { display: inline-block; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 5px 12px; margin: 3px; font-size: 13px; }
+  .steps { display: flex; gap: 10px; margin-bottom: 14px; }
+  .step { flex: 1; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; font-size: 13px; color: var(--muted); }
+  .step b { display: block; color: #fff; font-size: 15px; margin-bottom: 2px; }
+  .step i { display: inline-block; width: 24px; height: 24px; line-height: 24px; text-align: center; border-radius: 50%; background: linear-gradient(135deg, var(--g1), var(--g2)); color: #fff; font-style: normal; font-weight: bold; margin-bottom: 6px; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+  .tabBtn { flex: 1; margin: 0; padding: 12px 6px; font-size: 15px; background: var(--card); border: 1px solid var(--line); color: var(--muted); }
+  .tabBtn.on { background: linear-gradient(135deg, var(--g1), var(--g2)); color: #fff; border-color: transparent; }
 
   .app { display: flex; gap: 22px; align-items: flex-start; }
-  #editor { flex: 1; min-width: 0; }
+  #editor { flex: 1; min-width: 0; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 6px 16px 16px; }
   #previewPane { flex: 1; min-width: 0; position: sticky; top: 10px; max-height: calc(100vh - 20px); overflow: auto; }
   .previewTop { display: none; }
   #openPreview { display: none; }
 
-  .box { background: #f2f7ff; border: 1px solid #b9d0f5; border-radius: 8px; padding: 14px; margin: 16px 0; }
+  .box { background: #0f1730; border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin: 16px 0; }
   .box h2 { margin: 0 0 4px; font-size: 18px; }
-  .hint { color: #555; font-size: 14px; margin: 0 0 6px; }
-  .sug { background: #fff; border: 1px solid #ccc; border-radius: 6px; padding: 10px; margin-top: 8px; }
+  .hint { color: var(--muted); font-size: 14px; margin: 0 0 6px; }
+  .sug { background: #18224a; border: 1px solid var(--line); border-radius: 8px; padding: 10px; margin-top: 8px; }
   .sug p { margin: 0 0 6px; line-height: 1.4; }
   .sug button { margin: 0; padding: 8px 14px; font-size: 14px; }
-  .sw { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #bbb; margin: 4px; padding: 0; }
+  .sw { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #556; margin: 4px; padding: 0; }
   #atsOut { margin-top: 8px; }
   #atsOut p { margin: 4px 0; }
-  .paybox { background: #ecfdf3; border: 1px solid #86efac; border-radius: 8px; padding: 14px; margin: 16px 0; }
+  .paybox { background: #0f2a22; border: 1px solid #1f7a5a; border-radius: 12px; padding: 14px; margin: 16px 0; }
   .paybox h2 { margin: 0 0 4px; font-size: 18px; }
 
-  /* CV paper */
-  #resume { background: #fff; box-shadow: 0 2px 14px rgba(0,0,0,.2); padding: 34px 32px 40px; min-height: 520px; border-top: 8px solid var(--accent); font-family: Georgia, serif; }
+  /* Tool pages (cover letter, linkedin) */
+  .tool { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 6px 16px 18px; }
+  .tool h2 { margin: 14px 0 4px; font-size: 22px; }
+  .res { background: #0f1730; border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-top: 12px; }
+  .res h4 { margin: 0 0 6px; color: #c7d2fe; font-size: 14px; }
+  .res div { white-space: pre-wrap; line-height: 1.5; font-size: 15px; }
+  .res button { margin-top: 8px; padding: 8px 14px; font-size: 14px; }
+  #letterPaper { background: #fff; color: #222; border-radius: 4px; padding: 30px 28px; margin-top: 14px; font-family: Georgia, serif; font-size: 15px; line-height: 1.6; white-space: pre-wrap; min-height: 160px; }
+  .cta { margin-top: 16px; padding: 14px; border-radius: 12px; background: linear-gradient(135deg, rgba(99,102,241,.25), rgba(236,72,153,.25)); border: 1px solid var(--line); }
+  .cta p { margin: 0 0 6px; }
+
+  /* CV paper (stays white like real paper) */
+  #resume { background: #fff; color: #222; box-shadow: 0 2px 18px rgba(0,0,0,.5); padding: 34px 32px 40px; min-height: 520px; border-top: 8px solid var(--accent); font-family: Georgia, serif; }
   .cvHead { padding-bottom: 12px; margin-bottom: 6px; }
   #rName { margin: 0 0 6px; font-size: 30px; font-weight: 800; color: #111; text-transform: uppercase; word-wrap: break-word; }
   #rContact { margin: 0; color: #444; font-size: 14px; }
@@ -61,38 +84,61 @@
   #resume[data-layout="split"] #rContact { text-align: right; }
   #resume[data-layout="split"] .sec h3 { font-style: italic; font-variant: small-caps; text-transform: none; font-size: 16px; border-bottom: 1px solid #ddd; }
 
+  .foot { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; }
+
   @media (max-width: 899px) {
     .app { display: block; }
-    #previewPane { display: none; position: fixed; inset: 0; z-index: 50; background: #e4e7f0; overflow: auto; max-height: none; padding: 10px; }
+    #previewPane { display: none; position: fixed; inset: 0; z-index: 50; background: #1a2142; overflow: auto; max-height: none; padding: 10px; }
     #previewPane.open { display: block; }
     .previewTop { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
     .previewTop button { margin: 0; padding: 10px 12px; font-size: 14px; }
-    #openPreview { display: block; position: fixed; right: 14px; bottom: 16px; z-index: 40; margin: 0; border-radius: 30px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(0,0,0,.3); }
+    body[data-tab="Resume"] #openPreview { display: block; position: fixed; right: 14px; bottom: 16px; z-index: 40; margin: 0; border-radius: 30px; padding: 14px 20px; box-shadow: 0 4px 18px rgba(0,0,0,.6); }
     #resume { padding: 24px 18px 30px; }
     #rName { font-size: 22px; }
+    .hero h1 { font-size: 25px; }
+    .steps { display: none; }
   }
 
   @media print {
-    body { background: #fff; margin: 0; padding: 0; max-width: none; }
-    #editor, #openPreview, .previewTop { display: none !important; }
+    body { background: #fff; color: #000; margin: 0; padding: 0; max-width: none; }
+    .hero, .steps, .tabs, #openPreview, .previewTop, #editor, .foot, #tabLinked, .formSide, .cta { display: none !important; }
     .app { display: block; }
     #previewPane { display: block !important; position: static !important; padding: 0; background: #fff; overflow: visible; max-height: none; }
     #resume { box-shadow: none; padding: 0; min-height: 0; border-top: 0; }
     .empty { display: none !important; }
+    body.printLetter #tabResume { display: none !important; }
+    body.printLetter #tabCover { display: block !important; }
+    body:not(.printLetter) #tabCover { display: none !important; }
+    .tool { background: #fff; border: 0; padding: 0; }
+    #letterPaper { padding: 0; margin: 0; }
   }
 </style>
 </head>
-<body>
+<body data-tab="Resume">
 
+<div class="hero">
+  <h1>Land your first job faster</h1>
+  <p>FreshStart Resume gives graduates a clean ATS-friendly resume, a ready cover letter and a better LinkedIn profile, free and in minutes.</p>
+  <div class="badges"><span>12 resume templates</span><span>Experience Translator</span><span>ATS score</span><span>Cover letter</span><span>LinkedIn helper</span></div>
+</div>
+
+<div class="steps">
+  <div class="step"><i>1</i><b>Add your details</b>Type once, use everywhere.</div>
+  <div class="step"><i>2</i><b>Pick a template</b>12 clean, ATS-safe styles.</div>
+  <div class="step"><i>3</i><b>Download</b>PDF or Word, ready to apply.</div>
+</div>
+
+<div class="tabs">
+  <button type="button" class="tabBtn on" id="btnResume" onclick="showTab('Resume')">Resume</button>
+  <button type="button" class="tabBtn" id="btnCover" onclick="showTab('Cover')">Cover Letter</button>
+  <button type="button" class="tabBtn" id="btnLinked" onclick="showTab('Linked')">LinkedIn Helper</button>
+</div>
+
+<!-- ============ RESUME TAB ============ -->
+<div id="tabResume">
 <div class="app">
 
   <div id="editor">
-    <div class="hero">
-      <h1>Land your first job faster</h1>
-      <p>FreshStart Resume: build a clean, ATS-friendly resume in minutes. No experience needed.</p>
-      <div class="badges"><span>12 templates</span><span>Experience Translator</span><span>ATS score</span><span>PDF and Word</span></div>
-    </div>
-
     <label>Choose a template</label>
     <select id="tplSelect"></select>
 
@@ -171,13 +217,81 @@
   </div>
 
 </div>
+</div>
+
+<!-- ============ COVER LETTER TAB ============ -->
+<div id="tabCover" style="display:none">
+  <div class="tool">
+    <div class="formSide">
+      <h2>Free Cover Letter Generator</h2>
+      <p class="hint">Fill in the boxes and get a ready-to-send letter. Your name, email and phone come from the Resume tab.</p>
+      <label>Job title you are applying for</label>
+      <input id="cJob" placeholder="e.g. Marketing Assistant">
+      <label>Company name</label>
+      <input id="cCompany" placeholder="e.g. Acme Corp">
+      <label>Hiring manager (optional)</label>
+      <input id="cManager" placeholder="e.g. Ms. Johnson (leave empty for Hiring Manager)">
+      <label>Your degree or field</label>
+      <input id="cField" placeholder="e.g. Business Administration">
+      <label>Your top strengths (separate with commas)</label>
+      <input id="cStrengths" placeholder="e.g. teamwork, communication, Excel">
+      <label>One thing you are proud of (optional)</label>
+      <textarea id="cAch" rows="3" placeholder="e.g. led a team of 5 to finish our final-year project two days early"></textarea>
+      <label>Tone</label>
+      <select id="cTone">
+        <option value="professional">Professional</option>
+        <option value="friendly">Friendly</option>
+        <option value="confident">Confident</option>
+      </select>
+      <button type="button" onclick="makeLetter()">Generate cover letter</button>
+    </div>
+
+    <div id="letterPaper">Your cover letter will appear here.</div>
+
+    <div class="formSide">
+      <button type="button" onclick="copyById('letterPaper', this)">Copy text</button>
+      <button type="button" class="grey" onclick="printLetter()">Download PDF</button>
+      <button type="button" class="grey" onclick="letterWord()">Download Word</button>
+      <div class="cta">
+        <p><b>Next step:</b> a great letter needs a great resume.</p>
+        <button type="button" onclick="showTab('Resume')" style="margin-top:4px">Build my resume</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ LINKEDIN TAB ============ -->
+<div id="tabLinked" style="display:none">
+  <div class="tool">
+    <h2>Free LinkedIn Helper</h2>
+    <p class="hint">Get 3 headline ideas, an About section and a message for connecting with recruiters.</p>
+    <label>Your degree or field</label>
+    <input id="lField" placeholder="e.g. Computer Science">
+    <label>Role you want</label>
+    <input id="lRole" placeholder="e.g. Junior Data Analyst">
+    <label>Top 3 skills (separate with commas)</label>
+    <input id="lSkills" placeholder="e.g. SQL, Excel, Communication">
+    <label>Target company (optional)</label>
+    <input id="lCompany" placeholder="e.g. Google">
+    <label>One line about you (optional)</label>
+    <input id="lExtra" placeholder="e.g. I love turning messy data into clear answers.">
+    <button type="button" onclick="makeLinked()">Generate my LinkedIn text</button>
+    <div id="lOut"></div>
+    <div class="cta">
+      <p><b>Next step:</b> match your resume to your new profile.</p>
+      <button type="button" onclick="showTab('Resume')" style="margin-top:4px">Build my resume</button>
+    </div>
+  </div>
+</div>
+
+<div class="foot">FreshStart Resume - made for graduates starting their careers.</div>
 
 <button type="button" id="openPreview" onclick="openPreview()">Preview CV</button>
 
 <script>
 /* ====== YOUR SETTINGS ======
    PAYWALL_ON = false  -> everything is free (current mode)
-   PAYWALL_ON = true   -> clean downloads need payment (set the 2 lines below first)
+   PAYWALL_ON = true   -> clean resume downloads need payment (set the 2 lines below first)
 */
 var PAYWALL_ON = false;
 var PAY_LINK = "PASTE_YOUR_PAYMENT_LINK_HERE";
@@ -207,7 +321,39 @@ function lines(id) {
 }
 function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
-/* ---- Paywall ---- */
+/* ---- Tabs ---- */
+function showTab(n) {
+  ["Resume", "Cover", "Linked"].forEach(function (t) {
+    document.getElementById("tab" + t).style.display = (t === n) ? "block" : "none";
+    document.getElementById("btn" + t).className = "tabBtn" + (t === n ? " on" : "");
+  });
+  document.body.setAttribute("data-tab", n);
+  window.scrollTo(0, 0);
+}
+
+/* ---- Copy helper ---- */
+function copyText(txt, btn) {
+  function done() { var old = btn.textContent; btn.textContent = "Copied"; setTimeout(function () { btn.textContent = old; }, 1500); }
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(done, function () { fallback(); });
+      return;
+    }
+  } catch (e) {}
+  fallback();
+  function fallback() {
+    var ta = document.createElement("textarea");
+    ta.value = txt;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(ta);
+    done();
+  }
+}
+function copyById(id, btn) { copyText(document.getElementById(id).textContent, btn); }
+
+/* ---- Paywall (resume only) ---- */
 function isPaid() {
   if (!PAYWALL_ON) { return true; }
   try { return localStorage.getItem("paid") === "1"; } catch (e) { return false; }
@@ -249,6 +395,16 @@ function pay() {
 }
 function downloadPDF() { window.print(); }
 
+function saveDoc(html, filename) {
+  var blob = new Blob(["\ufeff" + html], { type: "application/msword" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
 function downloadWord() {
   if (!isPaid()) { pay(); return; }
   var t = current;
@@ -265,13 +421,7 @@ function downloadWord() {
     sec("Projects and Experience", lines("experience").length ? "<ul>" + lines("experience").map(function (l) { return "<li>" + esc(l) + "</li>"; }).join("") + "</ul>" : "") +
     sec("Skills", lines("skills").length ? "<p>" + esc(lines("skills").join(", ")) + "</p>" : "") +
     "</body></html>";
-  var blob = new Blob(["\ufeff" + html], { type: "application/msword" });
-  var a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "resume.doc";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  saveDoc(html, "resume.doc");
 }
 
 /* ---- Templates ---- */
@@ -381,4 +531,132 @@ function runTranslate() {
       ex.value = (ex.value ? ex.value + "\n" : "") + line;
       update();
       b.textContent = "Added";
-  
+    };
+    box.appendChild(p);
+    box.appendChild(b);
+    out.appendChild(box);
+  });
+}
+
+/* ---- ATS checker ---- */
+function checkATS() {
+  var tips = [], score = 100;
+  function miss(p, m) { score -= p; tips.push(m); }
+  if (!val("name")) miss(10, "Add your full name.");
+  if (!val("email")) miss(10, "Add your email.");
+  if (!val("phone")) miss(5, "Add your phone number.");
+  if (val("summary").length < 60) miss(10, "Write a 2-3 sentence summary.");
+  if (!val("education")) miss(15, "Add your education.");
+  var exp = val("experience");
+  var exLines = exp ? exp.split("\n").filter(Boolean) : [];
+  if (exLines.length < 3) miss(15, "Add at least 3 experience lines. Try the Experience Translator.");
+  if (!/\d/.test(exp)) miss(10, "Add numbers (people, hours, results) to show impact.");
+  var sk = val("skills").split("\n").filter(Boolean);
+  if (sk.length < 5) miss(10, "List at least 5 skills.");
+  if (score < 0) score = 0;
+  var out = document.getElementById("atsOut");
+  out.innerHTML = "";
+  var h = document.createElement("h3");
+  h.textContent = "ATS score: " + score + "/100";
+  out.appendChild(h);
+  if (!tips.length) tips.push("Great job. Your resume is ready to download.");
+  tips.forEach(function (t) {
+    var p = document.createElement("p");
+    p.textContent = "- " + t;
+    out.appendChild(p);
+  });
+}
+
+/* ---- Cover letter ---- */
+function buildLetter() {
+  var name = val("name") || "Your Name", email = val("email"), phone = val("phone");
+  var job = val("cJob") || "[Job Title]", co = val("cCompany") || "[Company]", mgr = val("cManager") || "Hiring Manager";
+  var field = val("cField"), str = val("cStrengths"), ach = val("cAch").replace(/[.\s]+$/, "");
+  var tone = document.getElementById("cTone").value;
+  var grad = field ? "a recent graduate in " + field : "a recent graduate";
+  var p1;
+  if (tone === "friendly") {
+    p1 = "I was thrilled to see the " + job + " opening at " + co + ", and I would love the chance to join your team. As " + grad + ", I am excited to start my career with a company like yours.";
+  } else if (tone === "confident") {
+    p1 = "I learn fast, I work hard and I deliver results, and I want to bring that to the " + job + " role at " + co + ". As " + grad + ", I am ready to contribute from day one.";
+  } else {
+    p1 = "I am writing to apply for the " + job + " position at " + co + ". As " + grad + ", I am eager to bring my energy, strong work ethic and willingness to learn to your team.";
+  }
+  var parts = ["Dear " + mgr + ",", p1];
+  if (ach) { parts.push("A good example of my work: " + ach + ". This taught me how to take responsibility, work with others and finish what I start."); }
+  if (str) { parts.push("My strengths include " + str + ". I use them to solve problems, communicate clearly and adapt quickly in new environments."); }
+  parts.push("I would welcome the chance to discuss how I can contribute to " + co + ". Thank you for your time and consideration.");
+  var contact = [email, phone].filter(Boolean).join(" | ");
+  parts.push("Sincerely,\n" + name + (contact ? "\n" + contact : ""));
+  return parts.join("\n\n");
+}
+function makeLetter() {
+  document.getElementById("letterPaper").textContent = buildLetter();
+}
+function printLetter() {
+  var txt = document.getElementById("letterPaper").textContent;
+  if (txt.indexOf("will appear here") > -1) { makeLetter(); }
+  document.body.classList.add("printLetter");
+  window.print();
+  setTimeout(function () { document.body.classList.remove("printLetter"); }, 800);
+}
+window.onafterprint = function () { document.body.classList.remove("printLetter"); };
+function letterWord() {
+  var txt = document.getElementById("letterPaper").textContent;
+  if (txt.indexOf("will appear here") > -1) { makeLetter(); txt = document.getElementById("letterPaper").textContent; }
+  var body = txt.split("\n\n").map(function (p) { return "<p>" + esc(p).replace(/\n/g, "<br>") + "</p>"; }).join("");
+  saveDoc('<html><head><meta charset="utf-8"><title>Cover Letter</title></head><body style="font-family:Calibri;font-size:11pt">' + body + "</body></html>", "cover-letter.doc");
+}
+
+/* ---- LinkedIn helper ---- */
+function makeLinked() {
+  var field = val("lField") || "[your field]", role = val("lRole") || "[target role]";
+  var sk = val("lSkills").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+  var s1 = sk[0] || "Communication", s2 = sk[1] || "Problem Solving", s3 = sk[2] || "Teamwork";
+  var co = val("lCompany"), extra = val("lExtra");
+  var items = [
+    { t: "Headline option 1", x: role + " | " + s1 + ", " + s2 + ", " + s3 + " | " + field + " Graduate" },
+    { t: "Headline option 2", x: "Recent " + field + " Graduate Seeking " + role + " Opportunities | " + s1 + " | " + s2 },
+    { t: "Headline option 3", x: "Aspiring " + role + " | " + field + " Graduate | Open to Work" },
+    { t: "About section", x: "I am a recent " + field + " graduate looking for a " + role + " role. " + (extra ? extra + " " : "I enjoy learning fast, working with others and turning ideas into results. ") + (sk.length ? "My strengths include " + sk.join(", ") + ". " : "") + "I am open to new opportunities and always happy to connect, so feel free to send me a message." },
+    { t: "Message to a recruiter", x: "Hi [Name], I am a recent " + field + " graduate interested in " + role + " roles" + (co ? " at " + co : "") + ". I would love to connect and learn from your experience. Thank you!" }
+  ];
+  var out = document.getElementById("lOut");
+  out.innerHTML = "";
+  items.forEach(function (it) {
+    var box = document.createElement("div");
+    box.className = "res";
+    var h = document.createElement("h4");
+    h.textContent = it.t;
+    var d = document.createElement("div");
+    d.textContent = it.x;
+    var b = document.createElement("button");
+    b.type = "button";
+    b.textContent = "Copy";
+    b.onclick = function () { copyText(it.x, b); };
+    box.appendChild(h);
+    box.appendChild(d);
+    box.appendChild(b);
+    out.appendChild(box);
+  });
+}
+
+/* ---- Colors ---- */
+["#1B2B47", "#2A6B6E", "#6B2737", "#A85432", "#6B7F5C", "#C2511F", "#222222"].forEach(function (c) {
+  var b = document.createElement("button");
+  b.type = "button";
+  b.className = "sw";
+  b.style.background = c;
+  b.onclick = function () { document.documentElement.style.setProperty("--accent", c); };
+  document.getElementById("swatches").appendChild(b);
+});
+
+/* ---- Start ---- */
+buildTemplateMenu();
+applyTemplate(TEMPLATES[0]);
+checkUnlockLink();
+applyPaid();
+update();
+</script>
+</body>
+</html>
