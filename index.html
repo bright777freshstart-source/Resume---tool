@@ -4,15 +4,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Graduate Resume Builder</title>
 <style>
-  body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 0 12px; }
-  input, textarea { width: 100%; padding: 8px; margin: 4px 0 12px; box-sizing: border-box; }
-  button { padding: 12px 16px; font-size: 16px; }
-  #resume { border: 1px solid #999; padding: 16px; margin-top: 20px; }
-  #rName { margin: 0; }
-  .block { white-space: pre-line; }
+  body { font-family: Arial, sans-serif; max-width: 640px; margin: 20px auto; padding: 0 12px; color: #222; }
+  label { display: block; font-weight: bold; margin-top: 10px; }
+  input, textarea { width: 100%; padding: 10px; margin: 4px 0 8px; box-sizing: border-box; font-size: 16px; font-family: inherit; }
+  textarea { line-height: 1.4; }
+  button { padding: 12px 18px; font-size: 16px; margin-top: 12px; }
+
+  #resume { border: 1px solid #bbb; padding: 28px; margin-top: 24px; background: #fff; }
+  #rName { margin: 0 0 4px; font-size: 28px; letter-spacing: 1px; }
+  #rContact { margin: 0 0 16px; color: #555; }
+  #resume h3 { margin: 18px 0 6px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #222; padding-bottom: 3px; }
+  .block { white-space: pre-line; margin: 0; line-height: 1.5; }
+
   @media print {
     .noprint { display: none; }
-    #resume { border: none; margin: 0; }
+    #resume { border: none; margin: 0; padding: 0; }
   }
 </style>
 </head>
@@ -27,38 +33,39 @@
   <label>Phone</label>
   <input id="phone">
   <label>Short summary (2-3 sentences)</label>
-  <textarea id="summary" rows="3"></textarea>
+  <textarea id="summary" rows="4"></textarea>
   <label>Education (one item per line)</label>
-  <textarea id="education" rows="3"></textarea>
+  <textarea id="education" rows="5"></textarea>
   <label>Projects and experience (one item per line)</label>
-  <textarea id="experience" rows="5"></textarea>
+  <textarea id="experience" rows="7"></textarea>
   <label>Skills (one item per line)</label>
-  <textarea id="skills" rows="3"></textarea>
+  <textarea id="skills" rows="4"></textarea>
   <button onclick="window.print()">Download PDF</button>
 </div>
 
 <div id="resume">
   <h2 id="rName">Your Name</h2>
   <p id="rContact"></p>
-  <h3>Summary</h3>
-  <p class="block" id="rSummary"></p>
-  <h3>Education</h3>
-  <p class="block" id="rEducation"></p>
-  <h3>Projects and Experience</h3>
-  <p class="block" id="rExperience"></p>
-  <h3>Skills</h3>
-  <p class="block" id="rSkills"></p>
+  <div id="secSummary"><h3>Summary</h3><p class="block" id="rSummary"></p></div>
+  <div id="secEducation"><h3>Education</h3><p class="block" id="rEducation"></p></div>
+  <div id="secExperience"><h3>Projects and Experience</h3><p class="block" id="rExperience"></p></div>
+  <div id="secSkills"><h3>Skills</h3><p class="block" id="rSkills"></p></div>
 </div>
 
 <script>
-function val(id) { return document.getElementById(id).value; }
+function val(id) { return document.getElementById(id).value.trim(); }
+function show(sectionId, textId, value) {
+  document.getElementById(textId).textContent = value;
+  document.getElementById(sectionId).style.display = value ? "block" : "none";
+}
 function update() {
   document.getElementById("rName").textContent = val("name") || "Your Name";
-  document.getElementById("rContact").textContent = val("email") + " | " + val("phone");
-  document.getElementById("rSummary").textContent = val("summary");
-  document.getElementById("rEducation").textContent = val("education");
-  document.getElementById("rExperience").textContent = val("experience");
-  document.getElementById("rSkills").textContent = val("skills");
+  var contact = [val("email"), val("phone")].filter(Boolean).join(" | ");
+  document.getElementById("rContact").textContent = contact;
+  show("secSummary", "rSummary", val("summary"));
+  show("secEducation", "rEducation", val("education"));
+  show("secExperience", "rExperience", val("experience"));
+  show("secSkills", "rSkills", val("skills"));
 }
 document.querySelectorAll("input, textarea").forEach(function (el) {
   el.oninput = update;
