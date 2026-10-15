@@ -1,1 +1,18 @@
-In the big box below, paste this one line: <h1>Hello, my resume tool is coming</h1>
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Graduate Resume Builder</title>
+</head>
+<body>
+<h1>Graduate Resume Builder</h1>
+<p>Type your name:</p>
+<input id="name">
+<h2 id="preview">Your name will appear here</h2>
+<script>
+document.getElementById("name").oninput = function () {
+  document.getElementById("preview").textContent = this.value;
+};
+</script>
+</body>
+</html>
