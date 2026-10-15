@@ -6,40 +6,64 @@
 <style>
   body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 0 12px; }
   input, textarea { width: 100%; padding: 8px; margin: 4px 0 12px; box-sizing: border-box; }
+  button { padding: 12px 16px; font-size: 16px; }
   #resume { border: 1px solid #999; padding: 16px; margin-top: 20px; }
   #rName { margin: 0; }
+  .block { white-space: pre-line; }
+  @media print {
+    .noprint { display: none; }
+    #resume { border: none; margin: 0; }
+  }
 </style>
 </head>
 <body>
-<h1>Graduate Resume Builder</h1>
 
-<label>Full name</label>
-<input id="name">
-<label>Email</label>
-<input id="email">
-<label>Phone</label>
-<input id="phone">
-<label>Short summary (2-3 sentences)</label>
-<textarea id="summary" rows="4"></textarea>
+<div class="noprint">
+  <h1>Graduate Resume Builder</h1>
+  <label>Full name</label>
+  <input id="name">
+  <label>Email</label>
+  <input id="email">
+  <label>Phone</label>
+  <input id="phone">
+  <label>Short summary (2-3 sentences)</label>
+  <textarea id="summary" rows="3"></textarea>
+  <label>Education (one item per line)</label>
+  <textarea id="education" rows="3"></textarea>
+  <label>Projects and experience (one item per line)</label>
+  <textarea id="experience" rows="5"></textarea>
+  <label>Skills (one item per line)</label>
+  <textarea id="skills" rows="3"></textarea>
+  <button onclick="window.print()">Download PDF</button>
+</div>
 
 <div id="resume">
   <h2 id="rName">Your Name</h2>
-  <p id="rContact">email | phone</p>
+  <p id="rContact"></p>
   <h3>Summary</h3>
-  <p id="rSummary">Your summary will appear here.</p>
+  <p class="block" id="rSummary"></p>
+  <h3>Education</h3>
+  <p class="block" id="rEducation"></p>
+  <h3>Projects and Experience</h3>
+  <p class="block" id="rExperience"></p>
+  <h3>Skills</h3>
+  <p class="block" id="rSkills"></p>
 </div>
 
 <script>
+function val(id) { return document.getElementById(id).value; }
 function update() {
-  document.getElementById("rName").textContent = document.getElementById("name").value || "Your Name";
-  document.getElementById("rContact").textContent =
-    document.getElementById("email").value + " | " + document.getElementById("phone").value;
-  document.getElementById("rSummary").textContent =
-    document.getElementById("summary").value || "Your summary will appear here.";
+  document.getElementById("rName").textContent = val("name") || "Your Name";
+  document.getElementById("rContact").textContent = val("email") + " | " + val("phone");
+  document.getElementById("rSummary").textContent = val("summary");
+  document.getElementById("rEducation").textContent = val("education");
+  document.getElementById("rExperience").textContent = val("experience");
+  document.getElementById("rSkills").textContent = val("skills");
 }
 document.querySelectorAll("input, textarea").forEach(function (el) {
   el.oninput = update;
 });
+update();
 </script>
 </body>
 </html>
