@@ -92,6 +92,14 @@
   #resume[data-layout="compact"] .sec { margin-top: 10px; }
   #resume[data-layout="compact"] .sec h3 { border-bottom: 1px solid #ccc; font-size: 12px; }
   #resume[data-layout="compact"] .txt, #resume[data-layout="compact"] .sec li { font-size: 13px; line-height: 1.4; margin-bottom: 1px; }
+  #bigwm { display: none; }
+  #rPhoto { display: none; }
+  .cvHead { position: relative; }
+  .cvHead.hasPhoto { padding-right: 104px; min-height: 92px; }
+  .cvHead.hasPhoto #rPhoto { display: block; position: absolute; top: 0; right: 0; width: 88px; height: 88px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); }
+  #resume[data-layout="banner"] .cvHead.hasPhoto { padding-right: 0; }
+  #resume[data-layout="banner"] .cvHead.hasPhoto #rPhoto { position: static; margin: 0 auto 10px; }
+  #resume[data-layout="compact"] .cvHead.hasPhoto #rPhoto { width: 72px; height: 72px; }
   .foot { text-align: center; color: var(--muted); font-size: 13px; margin-top: 26px; }
 
   @media (max-width: 899px) {
@@ -107,12 +115,16 @@
     .steps { display: none; }
   }
 
+  @page { size: A4; margin: 14mm; }
   @media print {
     body { background: #fff; color: #000; margin: 0; padding: 0; max-width: none; }
     .hero, .steps, .tabs, #openPreview, .previewTop, #editor, .foot, #tabLinked, .formSide, .cta { display: none !important; }
     .app { display: block; }
     #previewPane { display: block !important; position: static !important; padding: 0; background: #fff; overflow: visible; max-height: none; }
-    #resume { box-shadow: none; padding: 0; min-height: 0; border-top: 0; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body.unpaid #bigwm { display: block; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-35deg); font-size: 90px; font-weight: bold; line-height: 1.2; text-align: center; white-space: nowrap; color: rgba(0,0,0,.12); z-index: 9999; pointer-events: none; }
+    body.printLetter #bigwm { display: none !important; }
+    #resume { box-shadow: none; padding: 12px 0 0; min-height: 0; border-top: 8px solid var(--accent); }
     .empty { display: none !important; }
     body.printLetter #tabResume { display: none !important; }
     body.printLetter #tabCover { display: block !important; }
@@ -160,6 +172,9 @@
     <input id="location" placeholder="e.g. Lagos, Nigeria">
     <label>Professional title</label>
     <input id="title" placeholder="e.g. Aspiring Software Developer | Computer Science Graduate">
+    <label>Profile photo (optional)</label>
+    <input type="file" id="photoIn" accept="image/*">
+    <p class="hint">Stays on your phone. Many employers (especially in the US and UK) prefer CVs without a photo, so add one only if the job expects it. <a href="#" onclick="removePhoto();return false" style="color:#c7d2fe">Remove photo</a></p>
     <label>Professional links (optional, one per line)</label>
     <textarea id="links" rows="2" placeholder="LinkedIn, portfolio or GitHub link"></textarea>
     <label>Short summary (2-3 sentences)</label>
@@ -228,6 +243,7 @@
     </div>
     <div id="resume" data-layout="banner">
       <div class="cvHead">
+        <img id="rPhoto" alt="">
         <h2 id="rName">Your Name</h2>
         <p class="rtitle" id="rTitle"></p>
         <p id="rContact"></p>
@@ -310,6 +326,8 @@
 
 <div class="foot">FreshStart Resume - made for graduates starting their careers.</div>
 
+<div id="bigwm">FreshStart</div>
+
 <button type="button" id="openPreview" onclick="openPreview()">Preview CV</button>
 
 <script async src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -320,7 +338,7 @@
    PAYWALL_ON = true  -> clean downloads need payment (TEST MODE keys)
 */
 var PAYWALL_ON = true;
-var PAYSTACK_PK = "pk_test_1914b8bc6804fe175f97da09b385ca501ed8912c";
+var PAYSTACK_PK = "pk_live_bc0e0fc04a588d143937031c8f425df370cea034";
 var PRICE_NGN = 2000;   /* keep equal to EXPECTED_KOBO / 100 in functions/api/verify.js */
 var PRICE = "\u20a62,000";
 /* ============================ */
@@ -416,6 +434,7 @@ function enterCode() {
 function applyPaid() {
   var paid = isPaid();
   document.getElementById("wm").style.display = paid ? "none" : "block";
+  document.body.classList.toggle("unpaid", !paid);
   document.getElementById("unlockBtn").style.display = (paid || !PAYWALL_ON) ? "none" : "inline-block";
   document.getElementById("codeRow").style.display = (paid || !PAYWALL_ON) ? "none" : "block";
   if (!PAYWALL_ON) {
@@ -477,7 +496,7 @@ function downloadWord() {
       (o.c ? '<w:color w:val="' + o.c + '"/>' : '') + '<w:sz w:val="' + (o.s || 22) + '"/></w:rPr><w:t xml:space="preserve">' +
       esc(text) + '</w:t></w:r></w:p>';
   }
-  var body = xp((val("name") || "Your Name").toUpperCase(), { b: 1, s: 44, jc: mid, sa: 20 });
+  var body = (PHOTO ? photoPara(mid === "center" ? "center" : "right") : "") + xp((val("name") || "Your Name").toUpperCase(), { b: 1, s: 44, jc: mid, sa: 20 });
   if (val("title")) { body += xp(val("title"), { b: 1, c: col, s: 24, jc: mid }); }
   body += xp(contactList(), { s: 20, jc: mid, sa: 120 });
   var secs = [
@@ -495,12 +514,16 @@ function downloadWord() {
     body += xp(sc[0].toUpperCase(), { b: 1, c: col, s: 24, bd: 1, sb: 200, sa: 80 });
     sc[1].forEach(function (l) { body += xp(sc[2] ? "\u2022  " + l : l, { ind: sc[2] }); });
   });
-  var doc = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>' + body +
+  var doc = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"><w:body>' + body +
     '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>';
   var z = new JSZip();
-  z.file("[Content_Types].xml", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
+  z.file("[Content_Types].xml", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="jpg" ContentType="image/jpeg"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
   z.file("_rels/.rels", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
   z.file("word/document.xml", doc);
+  if (PHOTO) {
+    z.file("word/media/photo.jpg", PHOTO.split(",")[1], { base64: true });
+    z.file("word/_rels/document.xml.rels", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/photo.jpg"/></Relationships>');
+  }
   z.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }).then(function (blob) {
     var a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -800,6 +823,36 @@ var EXTRAS = [
 function extraItems(x) {
   if (x.optional && !document.getElementById("on_" + x.id).checked) { return []; }
   return lines("x_" + x.id);
+}
+var PHOTO = "";
+function applyPhoto() {
+  document.getElementById("rPhoto").src = PHOTO;
+  document.querySelector("#resume .cvHead").classList.toggle("hasPhoto", !!PHOTO);
+}
+function removePhoto() { PHOTO = ""; document.getElementById("photoIn").value = ""; applyPhoto(); }
+document.getElementById("photoIn").addEventListener("change", function () {
+  var f = this.files && this.files[0];
+  if (!f) { return; }
+  if (!/^image\//.test(f.type)) { alert("Please choose an image file."); return; }
+  var fr = new FileReader();
+  fr.onload = function () {
+    var img = new Image();
+    img.onload = function () {
+      var c = document.createElement("canvas");
+      c.width = c.height = 300;
+      var m = Math.min(img.width, img.height);
+      c.getContext("2d").drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, 300, 300);
+      PHOTO = c.toDataURL("image/jpeg", 0.85);
+      applyPhoto();
+    };
+    img.onerror = function () { alert("Could not read that image."); };
+    img.src = fr.result;
+  };
+  fr.readAsDataURL(f);
+});
+function photoPara(al) {
+  var e = 857250;
+  return '<w:p><w:pPr><w:spacing w:before="0" w:after="60"/><w:jc w:val="' + al + '"/></w:pPr><w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="' + e + '" cy="' + e + '"/><wp:docPr id="1" name="Photo"/><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="0" name="photo.jpg"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="rId1"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="' + e + '" cy="' + e + '"/></a:xfrm><a:prstGeom prst="ellipse"/></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>';
 }
 function contactList() {
   return [val("email"), val("phone"), val("location")].concat(lines("links")).filter(Boolean).join("  |  ");
