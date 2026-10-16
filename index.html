@@ -312,8 +312,8 @@
 
 <button type="button" id="openPreview" onclick="openPreview()">Preview CV</button>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://js.paystack.co/v1/inline.js"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script async src="https://js.paystack.co/v1/inline.js"></script>
 <script>
 /* ====== YOUR SETTINGS ======
    PAYWALL_ON = false -> everything is free
@@ -394,7 +394,7 @@ function checkUnlockLink() {
 }
 
 function verifyPayment(ref) {
-  fetch("/api/verify?reference=" + encodeURIComponent(ref))
+  fetch("/verify?reference=" + encodeURIComponent(ref))
     .then(function (r) { return r.json(); })
     .then(function (d) {
       if (d.ok) {
@@ -487,7 +487,7 @@ function downloadWord() {
     ["Skills", lines("skills").length ? [lines("skills").join(", ")] : [], 0]
   ];
   EXTRAS.forEach(function (x) {
-    var it = lines("x_" + x.id);
+    var it = extraItems(x);
     secs.push([x.t, x.inline && it.length ? [it.join(", ")] : it, x.inline ? 0 : 1]);
   });
   secs.forEach(function (sc) {
@@ -766,7 +766,7 @@ var EXTRAS = [
   { id: "awards", t: "Awards and Achievements", label: "Awards and achievements (one per line)", ph: "Best Graduating Student, Dept. of Biology, 2025", sample: "Add scholarships, awards and competitions." },
   { id: "certs", t: "Certifications", label: "Certifications (one per line)", ph: "Google Data Analytics Certificate, 2025", sample: "Add certificates, organisation and date." },
   { id: "work", t: "Selected Work", label: "Selected work: projects, research, portfolio (one per line)", ph: "Final-year project: Student attendance app", sample: "Add projects or research that show your ability." },
-  { id: "volunteer", t: "Volunteering", label: "Volunteering and student organisations (one per line)", ph: "Welfare Officer, Student Union, 2024", sample: "Add volunteer work or leadership roles." },
+  { id: "volunteer", optional: true, t: "Volunteering", label: "Volunteering and student organisations (one per line)", ph: "Welfare Officer, Student Union, 2024", sample: "Add volunteer work or leadership roles." },
   { id: "interests", t: "Interests", label: "Interests (one per line)", ph: "Chess\nPublic speaking", sample: "Add interests relevant to the job.", inline: true },
   { id: "refs", t: "References", label: "References (optional, one per line)", ph: "Available on request", sample: "Add referees, or leave empty." }
 ];
@@ -777,6 +777,17 @@ var EXTRAS = [
     var l = document.createElement("label"); l.textContent = x.label;
     var ta = document.createElement("textarea"); ta.id = "x_" + x.id; ta.rows = 3; ta.placeholder = x.ph;
     ta.addEventListener("input", update);
+    if (x.optional) {
+      var row = document.createElement("label");
+      row.style.cssText = "display:flex;align-items:center;gap:10px";
+      var cb = document.createElement("input");
+      cb.type = "checkbox"; cb.id = "on_" + x.id; cb.style.cssText = "width:22px;height:22px;margin:0";
+      cb.addEventListener("change", function () { l.style.display = ta.style.display = cb.checked ? "" : "none"; update(); });
+      row.appendChild(cb);
+      row.appendChild(document.createTextNode("Include " + x.t + " section (optional)"));
+      f.appendChild(row);
+      l.style.display = ta.style.display = "none";
+    }
     f.appendChild(l); f.appendChild(ta);
     var sec = document.createElement("div"); sec.className = "sec empty"; sec.id = "sec_x_" + x.id;
     sec.innerHTML = "<h3>" + x.t + "</h3>" + (x.inline ? '<p class="txt"></p>' : "<ul></ul>");
@@ -786,13 +797,18 @@ var EXTRAS = [
     document.documentElement.style.setProperty("--accent", this.value);
   });
 })();
+function extraItems(x) {
+  if (x.optional && !document.getElementById("on_" + x.id).checked) { return []; }
+  return lines("x_" + x.id);
+}
 function contactList() {
   return [val("email"), val("phone"), val("location")].concat(lines("links")).filter(Boolean).join("  |  ");
 }
 function updateExtras() {
   EXTRAS.forEach(function (x) {
-    var items = lines("x_" + x.id);
+    var items = extraItems(x);
     var sec = document.getElementById("sec_x_" + x.id);
+    sec.style.display = (!x.optional || document.getElementById("on_" + x.id).checked) ? "" : "none";
     sec.classList.toggle("empty", !items.length);
     if (x.inline) {
       sec.querySelector("p").textContent = items.length ? items.join(", ") : x.sample;
